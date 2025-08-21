@@ -82,7 +82,7 @@ async function syncToFirebase(collection, data) {
     }
     
     try {
-        await db.ref(`joda_erp/${collection}`).set(data);
+        await db.ref(`ash-ling-sistema/${collection}`).set(data);
         console.log(`✅ ${collection} sincronizado a Firebase`);
         return true;
     } catch (error) {
@@ -98,7 +98,7 @@ async function loadFromFirebase(collection) {
     }
     
     try {
-        const snapshot = await db.ref(`joda_erp/${collection}`).once('value');
+        const snapshot = await db.ref(`ash-ling-sistema/${collection}`).once('value');
         const data = snapshot.val();
         
         if (data) {
@@ -224,3 +224,4 @@ window.addEventListener('offline', () => {
     console.log('📴 Sin conexión a internet');
     showConnectionStatus('Sin internet - Solo local', 'warning');
 });
+
