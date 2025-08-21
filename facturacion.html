@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturación - Ash-Ling Sistema Empresarial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
+        .container { display: flex; min-height: 100vh; position: relative; }
+        .container::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .sidebar { width: 300px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0; transition: all 0.3s ease; position: relative; z-index: 10; box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(255, 255, 255, 0.1); }
+        .logo-section { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+        .logo-section img { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .logo-section h2 { color: #ffffff; font-weight: 800; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .logo-section p { color: #94a3b8; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; }
+        .nav-menu { list-style: none; padding: 0 15px; }
+        .nav-item { margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 15px 20px; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500; font-size: 0.95rem; position: relative; overflow: hidden; }
+        .nav-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .nav-link:hover::before { left: 100%; }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateX(8px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .nav-link i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; position: relative; z-index: 5; background: rgba(255, 255, 255, 0.02); }
+        .header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 35px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #ffffff; font-weight: 800; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .coming-soon { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 60px; text-align: center; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .coming-soon i { font-size: 4rem; color: #6366f1; margin-bottom: 20px; display: block; }
+        .coming-soon h2 { color: #ffffff; font-size: 2rem; font-weight: 700; margin-bottom: 15px; }
+        .coming-soon p { color: #94a3b8; font-size: 1.1rem; line-height: 1.6; max-width: 600px; margin: 0 auto; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; margin-top: 25px; transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5); }
+        @media (max-width: 768px) { .sidebar { width: 70px; } .logo-section h2, .logo-section p, .nav-link span { display: none; } .main-content { padding: 15px; } .header { padding: 20px; flex-direction: column; gap: 15px; } .header h1 { font-size: 1.8rem; } .coming-soon { padding: 40px 20px; } .coming-soon i { font-size: 3rem; } .coming-soon h2 { font-size: 1.5rem; } .coming-soon p { font-size: 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="ventas.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Ventas</span></a></li>
+                    <li class="nav-item"><a href="empleados.html" class="nav-link"><i class="fas fa-users"></i><span>Empleados</span></a></li>
+                    <li class="nav-item"><a href="facturacion.html" class="nav-link active"><i class="fas fa-file-invoice-dollar"></i><span>Facturación</span></a></li>
+                    <li class="nav-item"><a href="inventario.html" class="nav-link"><i class="fas fa-box-open"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a href="clientes.html" class="nav-link"><i class="fas fa-handshake"></i><span>Clientes</span></a></li>
+                    <li class="nav-item"><a href="proveedores.html" class="nav-link"><i class="fas fa-truck"></i><span>Proveedores</span></a></li>
+                    <li class="nav-item"><a href="reportes.html" class="nav-link"><i class="fas fa-chart-line"></i><span>Reportes</span></a></li>
+                    <li class="nav-item"><a href="calendario.html" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Calendario</span></a></li>
+                    <li class="nav-item"><a href="configuracion.html" class="nav-link"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header"><h1>Sistema de Facturación</h1></header>
+            <div class="coming-soon">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h2>Próximamente</h2>
+                <p>El Sistema de Facturación está en desarrollo. Aquí podrás crear facturas, gestionar pagos, enviar recordatorios y generar reportes fiscales.</p>
+                <a href="index.html" class="btn"><i class="fas fa-arrow-left"></i>Volver al Dashboard</a>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvAr526Zdh9NFiRv7Vz4hBRQe9qq5lyoQ",
+            authDomain: "ash-ling-sistema.firebaseapp.com",
+            projectId: "ash-ling-sistema",
+            storageBucket: "ash-ling-sistema.firebasestorage.app",
+            messagingSenderId: "643413580483",
+            appId: "1:643413580483:web:d9433150520f96c6ff6076"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>

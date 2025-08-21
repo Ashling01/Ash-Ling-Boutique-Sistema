@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proveedores - Ash-Ling Sistema Empr                <div class="section                                <th>Pr                            <input type="text" id="clientName" class="form-input" required placeholder="Distribuidora Ejemplo S.A.">veedor</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Fecha Registro</th>
+                                <th>Pedidos</th>
+                                <th>Acciones</th>
+                    <i class="fas fa-list"></i>
+                    Lista de Proveedores
+                </div>ial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
+        .container { display: flex; min-height: 100vh; position: relative; }
+        .container::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .sidebar { width: 300px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0; transition: all 0.3s ease; position: relative; z-index: 10; box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(255, 255, 255, 0.1); }
+        .logo-section { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+        .logo-section img { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .logo-section h2 { color: #ffffff; font-weight: 800; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .logo-section p { color: #94a3b8; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; }
+        .nav-menu { list-style: none; padding: 0 15px; }
+        .nav-item { margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 15px 20px; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500; font-size: 0.95rem; position: relative; overflow: hidden; }
+        .nav-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .nav-link:hover::before { left: 100%; }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateX(8px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .nav-link i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; position: relative; z-index: 5; background: rgba(255, 255, 255, 0.02); }
+        .header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 35px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #ffffff; font-weight: 800; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-actions { display: flex; gap: 15px; }
+        
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .stat-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05); display: flex; align-items: center; gap: 20px; transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+        .stat-icon.clients { background: linear-gradient(135deg, #10b981, #059669); }
+        .stat-icon.active { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .stat-icon.new { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-icon.revenue { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: white; margin-bottom: 5px; }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; font-weight: 500; }
+        
+        /* Content Section */
+        .content-section { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05); margin-bottom: 30px; }
+        .section-title { color: #ffffff; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .section-title i { color: #6366f1; }
+        
+        /* Filter and Search */
+        .filter-controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 45px 12px 15px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 0.95rem; transition: all 0.3s ease; }
+        .search-box input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .search-box input::placeholder { color: #94a3b8; }
+        .search-box i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .filter-select { padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; min-width: 150px; }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5); }
+        .btn-secondary { background: rgba(71, 85, 105, 0.8); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-secondary:hover { background: rgba(71, 85, 105, 1); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+        .btn-sm { padding: 8px 12px; font-size: 0.8rem; }
+        
+        /* Table */
+        .table-container { overflow-x: auto; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .clients-table { width: 100%; border-collapse: collapse; background: rgba(30, 41, 59, 0.4); }
+        .clients-table th { background: rgba(15, 23, 42, 0.8); color: #e2e8f0; padding: 15px; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .clients-table td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #cbd5e1; }
+        .clients-table tr:hover { background: rgba(99, 102, 241, 0.1); }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-inactive { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .action-buttons { display: flex; gap: 8px; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { color: white; font-size: 1.4rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { color: white; }
+        
+        /* Form */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; color: #e2e8f0; margin-bottom: 8px; font-weight: 500; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 0.95rem; transition: all 0.3s ease; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .form-input::placeholder, .form-textarea::placeholder { color: #64748b; }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-actions { display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px; }
+        
+        /* Responsive */
+        @media (max-width: 768px) { 
+            .sidebar { width: 70px; } 
+            .logo-section h2, .logo-section p, .nav-link span { display: none; } 
+            .main-content { padding: 15px; } 
+            .header { padding: 20px; flex-direction: column; gap: 15px; text-align: center; } 
+            .header-actions { flex-direction: column; width: 100%; }
+            .filter-controls { flex-direction: column; }
+            .search-box { min-width: auto; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-actions { flex-direction: column; }
+            .table-container { font-size: 0.9rem; }
+            .clients-table th, .clients-table td { padding: 10px 8px; }
+            .action-buttons { flex-direction: column; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="ventas.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Ventas</span></a></li>
+                    <li class="nav-item"><a href="empleados.html" class="nav-link"><i class="fas fa-users"></i><span>Empleados</span></a></li>
+                    <li class="nav-item"><a href="facturacion.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Facturación</span></a></li>
+                    <li class="nav-item"><a href="inventario.html" class="nav-link"><i class="fas fa-box-open"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a href="clientes.html" class="nav-link"><i class="fas fa-handshake"></i><span>Clientes</span></a></li>
+                    <li class="nav-item"><a href="proveedores.html" class="nav-link active"><i class="fas fa-truck"></i><span>Proveedores</span></a></li>
+                    <li class="nav-item"><a href="reportes.html" class="nav-link"><i class="fas fa-chart-line"></i><span>Reportes</span></a></li>
+                    <li class="nav-item"><a href="calendario.html" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Calendario</span></a></li>
+                    <li class="nav-item"><a href="configuracion.html" class="nav-link"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Gestión de Proveedores</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openSupplierModal()">
+                        <i class="fas fa-plus"></i> Nuevo Proveedor
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportSuppliers()">
+                        <i class="fas fa-file-export"></i> Exportar
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon clients">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="totalSuppliers">0</div>
+                        <div class="stat-label">Total Proveedores</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon active">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="activeSuppliers">0</div>
+                        <div class="stat-label">Proveedores Activos</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon new">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="pendingOrders">0</div>
+                        <div class="stat-label">Pedidos Pendientes</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Pedidos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Management Section -->
+            <div class="content-section">
+                <div class="section-title">
+                    <i class="fas fa-handshake"></i>
+                    Lista de Proveedores
+                </div>
+                
+                <!-- Filter and Search Controls -->
+                <div class="filter-controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar proveedores por nombre, email o teléfono..." onkeyup="searchSuppliers()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <select class="filter-select" id="statusFilter" onchange="filterSuppliers()">
+                        <option value="">Todos los estados</option>
+                        <option value="Activo">Activos</option>
+                        <option value="Inactivo">Inactivos</option>
+                    </select>
+                    <select class="filter-select" id="categoryFilter" onchange="filterSuppliers()">
+                        <option value="">Todas las categorías</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Comercial">Comercial</option>
+                        <option value="Importador">Importador</option>
+                        <option value="Mayorista">Mayorista</option>
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="clearFilters()" title="Limpiar filtros">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+
+                <!-- Clients Table -->
+                <div class="table-container">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Proveedor</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Registro</th>
+                                <th>Pedidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody">
+                            <!-- Los proveedores se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal para Agregar/Editar Proveedor -->
+        <div class="modal" id="clientModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalTitle">Nuevo Proveedor</h3>
+                    <button class="modal-close" onclick="closeSupplierModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="clientForm" onsubmit="saveSupplier(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="clientName">Nombre de la Empresa *</label>
+                            <input type="text" id="clientName" class="form-input" required placeholder="Distribuidora Ejemplo S.A.">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="clientEmail">Email *</label>
+                            <input type="email" id="clientEmail" class="form-input" required placeholder="ventas@ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="clientPhone">Teléfono *</label>
+                            <input type="tel" id="clientPhone" class="form-input" required placeholder="+507 230-4567">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="clientCategory">Categoría</label>
+                            <select id="clientCategory" class="form-select">
+                                <option value="Industrial">Industrial</option>
+                                <option value="Comercial">Comercial</option>
+                                <option value="Importador">Importador</option>
+                                <option value="Mayorista">Mayorista</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="clientBirthday">Fecha de Fundación</label>
+                            <input type="date" id="clientBirthday" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="clientStatus">Estado</label>
+                            <select id="clientStatus" class="form-select">
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="clientAddress">Dirección</label>
+                        <textarea id="clientAddress" class="form-textarea" placeholder="Dirección completa del proveedor"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="clientNotes">Notas</label>
+                        <textarea id="clientNotes" class="form-textarea" placeholder="Notas adicionales sobre el proveedor"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeSupplierModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Proveedor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para cargar proveedores del localStorage
+        function loadClientsData() {
+            const savedData = localStorage.getItem('suppliersData');
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (error) {
+                    console.error('Error al cargar datos de proveedores:', error);
+                    return getDefaultSuppliersData();
+                }
+            }
+            return getDefaultSuppliersData();
+        }
+
+        // Función para guardar proveedores en localStorage
+        function saveClientsData() {
+            try {
+                localStorage.setItem('suppliersData', JSON.stringify(clientsData));
+                updateStats();
+            } catch (error) {
+                console.error('Error al guardar datos de proveedores:', error);
+            }
+        }
+
+        // Datos de ejemplo predeterminados para proveedores
+        function getDefaultSuppliersData() {
+            return [
+                {
+                    id: 'PROV-001',
+                    name: 'Distribuidora Industrial S.A.',
+                    email: 'ventas@disindustrial.com',
+                    phone: '+507 230-4567',
+                    category: 'Industrial',
+                    status: 'Activo',
+                    foundedDate: '2010-03-15',
+                    address: 'Zona Libre de Colón, Edificio Industrial, Bodega 15B',
+                    notes: 'Proveedor principal de materiales industriales, entrega puntual',
+                    registerDate: '2024-01-15',
+                    totalOrders: 1250750.00,
+                    orderCount: 45
+                },
+                {
+                    id: 'PROV-002',
+                    name: 'Suministros Comerciales Panamá',
+                    email: 'compras@sumicom.com.pa',
+                    phone: '+507 264-5678',
+                    category: 'Comercial',
+                    status: 'Activo',
+                    foundedDate: '2015-07-22',
+                    address: 'Vía España, Centro Comercial Plaza, Local 302',
+                    notes: 'Especialistas en suministros de oficina y tecnología',
+                    registerDate: '2024-02-10',
+                    totalOrders: 680500.00,
+                    orderCount: 32
+                },
+                {
+                    id: 'PROV-003',
+                    name: 'Importaciones del Caribe Ltda.',
+                    email: 'info@impcaribe.com',
+                    phone: '+507 345-6789',
+                    category: 'Importador',
+                    status: 'Activo',
+                    foundedDate: '2008-11-08',
+                    address: 'Puerto de Balboa, Zona Portuaria, Almacén 45',
+                    notes: 'Importador especializado en productos electrónicos',
+                    registerDate: '2024-03-05',
+                    totalOrders: 980250.00,
+                    orderCount: 28
+                },
+                {
+                    id: 'PROV-004',
+                    name: 'Mayorista Central',
+                    email: 'pedidos@mayoristacentral.com',
+                    phone: '+507 456-7890',
+                    category: 'Mayorista',
+                    status: 'Activo',
+                    foundedDate: '2018-12-20',
+                    address: 'Pedregal, Centro de Distribución, Nave 8',
+                    notes: 'Nuevo proveedor con excelentes precios mayoristas',
+                    registerDate: '2024-08-01',
+                    totalOrders: 450000.00,
+                    orderCount: 12
+                }
+            ];
+        }
+
+        // Inicializar datos de proveedores
+        let suppliersData = loadSuppliersData();
+        let editingSupplierId = null;
+
+        // Función para generar ID único
+        function generateSupplierId() {
+            const prefix = 'PROV-';
+            let maxNumber = 0;
+            
+            // Encontrar el número más alto existente
+            suppliersData.forEach(supplier => {
+                if (supplier.id && supplier.id.startsWith(prefix)) {
+                    const number = parseInt(supplier.id.replace(prefix, ''));
+                    if (!isNaN(number) && number > maxNumber) {
+                        maxNumber = number;
+                    }
+                }
+            });
+            
+            const nextNumber = (maxNumber + 1).toString().padStart(3, '0');
+            return prefix + nextNumber;
+        }
+
+        // Función para renderizar la tabla de proveedores
+        function renderSuppliersTable(suppliers = suppliersData) {
+            const tbody = document.getElementById('clientsTableBody');
+            tbody.innerHTML = '';
+
+            if (suppliers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-building" style="font-size: 2rem; margin-bottom: 15px; display: block;"></i>
+                            No se encontraron proveedores
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            suppliers.forEach(supplier => {
+                const row = document.createElement('tr');
+                const statusClass = supplier.status === 'Activo' ? 'status-active' : 'status-inactive';
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                ${supplier.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: white;">${supplier.name}</div>
+                                <div style="font-size: 0.8rem; color: #94a3b8;">${supplier.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${supplier.email}</td>
+                    <td>${supplier.phone}</td>
+                    <td>
+                        <span class="status-badge ${supplier.category === 'Industrial' ? 'status-active' : 'status-inactive'}" style="background: ${supplier.category === 'Industrial' ? 'rgba(168, 85, 247, 0.2)' : supplier.category === 'Comercial' ? 'rgba(59, 130, 246, 0.2)' : supplier.category === 'Importador' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color: ${supplier.category === 'Industrial' ? '#a855f7' : supplier.category === 'Comercial' ? '#3b82f6' : supplier.category === 'Importador' ? '#10b981' : '#f59e0b'};">
+                            ${supplier.category}
+                        </span>
+                    </td>
+                    <td><span class="status-badge ${statusClass}">${supplier.status}</span></td>
+                    <td>${formatDate(supplier.registerDate)}</td>
+                    <td>
+                        <div>$${supplier.totalOrders.toFixed(2)}</div>
+                        <div style="font-size: 0.8rem; color: #94a3b8;">${supplier.orderCount} pedidos</div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-warning btn-sm" onclick="editSupplier('${supplier.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${supplier.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Función para formatear fecha
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Función para actualizar estadísticas
+        function updateStats() {
+            const total = suppliersData.length;
+            const active = suppliersData.filter(s => s.status === 'Activo').length;
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const newThisMonth = suppliersData.filter(s => {
+                const registerDate = new Date(s.registerDate);
+                return registerDate.getMonth() === currentMonth && registerDate.getFullYear() === currentYear;
+            }).length;
+            const totalValue = suppliersData.reduce((sum, s) => sum + s.totalOrders, 0);
+
+            document.getElementById('totalSuppliers').textContent = total;
+            document.getElementById('activeSuppliers').textContent = active;
+            document.getElementById('pendingOrders').textContent = newThisMonth;
+            document.getElementById('totalOrders').textContent = `$${totalValue.toFixed(2)}`;
+        }
+
+        // Función para abrir modal de proveedor
+        function openSupplierModal(supplierId = null) {
+            editingSupplierId = supplierId;
+            const modal = document.getElementById('clientModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('clientForm');
+            
+            if (supplierId) {
+                const supplier = suppliersData.find(s => s.id === supplierId);
+                if (supplier) {
+                    title.textContent = 'Editar Proveedor';
+                    document.getElementById('clientName').value = supplier.name;
+                    document.getElementById('clientEmail').value = supplier.email;
+                    document.getElementById('clientPhone').value = supplier.phone;
+                    document.getElementById('clientCategory').value = supplier.category;
+                    document.getElementById('clientBirthday').value = supplier.foundedDate;
+                    document.getElementById('clientStatus').value = supplier.status;
+                    document.getElementById('clientAddress').value = supplier.address || '';
+                    document.getElementById('clientNotes').value = supplier.notes || '';
+                }
+            } else {
+                title.textContent = 'Nuevo Proveedor';
+                form.reset();
+                document.getElementById('clientStatus').value = 'Activo';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // Función para cerrar modal
+        function closeSupplierModal() {
+            document.getElementById('clientModal').classList.remove('active');
+            editingSupplierId = null;
+        }
+
+        // Función para guardar proveedor
+        function saveSupplier(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('clientName').value.trim();
+            const email = document.getElementById('clientEmail').value.trim();
+            const phone = document.getElementById('clientPhone').value.trim();
+            const category = document.getElementById('clientCategory').value;
+            const foundedDate = document.getElementById('clientBirthday').value;
+            const status = document.getElementById('clientStatus').value;
+            const address = document.getElementById('clientAddress').value.trim();
+            const notes = document.getElementById('clientNotes').value.trim();
+
+            // Validaciones básicas
+            if (!name || !email || !phone) {
+                alert('Por favor, complete todos los campos obligatorios (Nombre, Email y Teléfono)');
+                return;
+            }
+
+            // Validar formato de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Por favor, ingrese un email válido');
+                return;
+            }
+
+            // Verificar si el email ya existe (excepto cuando estamos editando)
+            const existingSupplier = suppliersData.find(s => s.email === email && s.id !== editingSupplierId);
+            if (existingSupplier) {
+                alert('Ya existe un proveedor con este email');
+                return;
+            }
+
+            // Verificar si el teléfono ya existe (excepto cuando estamos editando)
+            const existingPhone = suppliersData.find(s => s.phone === phone && s.id !== editingSupplierId);
+            if (existingPhone) {
+                alert('Ya existe un proveedor con este número de teléfono');
+                return;
+            }
+
+            try {
+                if (editingSupplierId) {
+                    // Editar proveedor existente
+                    const supplierIndex = suppliersData.findIndex(s => s.id === editingSupplierId);
+                    if (supplierIndex !== -1) {
+                        suppliersData[supplierIndex] = {
+                            ...suppliersData[supplierIndex],
+                            name,
+                            email,
+                            phone,
+                            category,
+                            foundedDate,
+                            status,
+                            address,
+                            notes
+                        };
+                    }
+                } else {
+                    // Crear nuevo proveedor
+                    const newSupplier = {
+                        id: generateSupplierId(),
+                        name,
+                        email,
+                        phone,
+                        category,
+                        foundedDate,
+                        status,
+                        address,
+                        notes,
+                        registerDate: new Date().toISOString().split('T')[0],
+                        totalOrders: 0,
+                        orderCount: 0
+                    };
+                    suppliersData.push(newSupplier);
+                }
+
+                // Guardar datos y actualizar interfaz
+                saveSuppliersData();
+                renderSuppliersTable();
+                closeSupplierModal();
+                
+                // Mostrar mensaje de éxito
+                const message = editingSupplierId ? 'Proveedor actualizado exitosamente' : 'Proveedor agregado exitosamente';
+                alert(message);
+                
+            } catch (error) {
+                console.error('Error al guardar proveedor:', error);
+                alert('Error al guardar el proveedor. Por favor, inténtelo nuevamente.');
+            }
+        }
+
+        // Función para editar proveedor
+        function editSupplier(supplierId) {
+            try {
+                const supplier = suppliersData.find(s => s.id === supplierId);
+                if (!supplier) {
+                    alert('Proveedor no encontrado');
+                    return;
+                }
+                openSupplierModal(supplierId);
+            } catch (error) {
+                console.error('Error al editar proveedor:', error);
+                alert('Error al abrir el editor del proveedor. Por favor, inténtelo nuevamente.');
+            }
+        }
+
+        // Función para eliminar proveedor
+        function deleteSupplier(supplierId) {
+            try {
+                const supplier = suppliersData.find(s => s.id === supplierId);
+                if (!supplier) {
+                    alert('Proveedor no encontrado');
+                    return;
+                }
+                
+                if (confirm(`¿Estás seguro de que deseas eliminar a ${supplier.name}?\n\nEsta acción no se puede deshacer.`)) {
+                    // Eliminar proveedor del array
+                    suppliersData = suppliersData.filter(s => s.id !== supplierId);
+                    
+                    // Guardar cambios
+                    saveSuppliersData();
+                    
+                    // Actualizar interfaz
+                    renderSuppliersTable();
+                    
+                    // Limpiar filtros si no hay resultados
+                    const filteredSuppliers = document.querySelectorAll('#clientsTableBody tr');
+                    if (filteredSuppliers.length === 1 && filteredSuppliers[0].textContent.includes('No se encontraron proveedores')) {
+                        document.getElementById('searchInput').value = '';
+                        document.getElementById('statusFilter').value = '';
+                        document.getElementById('categoryFilter').value = '';
+                        renderSuppliersTable();
+                    }
+                    
+                    alert('Proveedor eliminado exitosamente');
+                }
+            } catch (error) {
+                console.error('Error al eliminar proveedor:', error);
+                alert('Error al eliminar el proveedor. Por favor, inténtelo nuevamente.');
+            }
+        }
+
+        // Función para buscar proveedores
+        function searchSuppliers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            let filteredSuppliers = [...suppliersData]; // Crear una copia del array
+
+            // Aplicar filtro de búsqueda
+            if (searchTerm) {
+                filteredSuppliers = filteredSuppliers.filter(supplier =>
+                    (supplier.name && supplier.name.toLowerCase().includes(searchTerm)) ||
+                    (supplier.email && supplier.email.toLowerCase().includes(searchTerm)) ||
+                    (supplier.phone && supplier.phone.includes(searchTerm)) ||
+                    (supplier.id && supplier.id.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Aplicar filtro de estado
+            if (statusFilter) {
+                filteredSuppliers = filteredSuppliers.filter(supplier => supplier.status === statusFilter);
+            }
+
+            // Aplicar filtro de categoría
+            if (categoryFilter) {
+                filteredSuppliers = filteredSuppliers.filter(supplier => supplier.category === categoryFilter);
+            }
+
+            renderSuppliersTable(filteredSuppliers);
+        }
+
+        // Función para filtrar proveedores
+        function filterSuppliers() {
+            searchSuppliers();
+        }
+
+        // Función para limpiar filtros
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('categoryFilter').value = '';
+            renderSuppliersTable();
+        }
+
+        // Función para exportar proveedores
+        function exportSuppliers() {
+            try {
+                if (suppliersData.length === 0) {
+                    alert('No hay proveedores para exportar');
+                    return;
+                }
+
+                // Encabezados del CSV
+                const headers = ['ID', 'Nombre', 'Email', 'Teléfono', 'Categoría', 'Estado', 'Fecha Fundación', 'Dirección', 'Fecha Registro', 'Total Pedidos', 'Número Pedidos', 'Notas'];
+                
+                // Datos de los proveedores
+                const csvData = suppliersData.map(supplier => [
+                    supplier.id || '',
+                    `"${supplier.name || ''}"`,
+                    supplier.email || '',
+                    supplier.phone || '',
+                    supplier.category || '',
+                    supplier.status || '',
+                    supplier.foundedDate || '',
+                    `"${(supplier.address || '').replace(/"/g, '""')}"`, // Escapar comillas en direcciones
+                    supplier.registerDate || '',
+                    supplier.totalOrders || 0,
+                    supplier.orderCount || 0,
+                    `"${(supplier.notes || '').replace(/"/g, '""')}"` // Escapar comillas en notas
+                ]);
+
+                // Combinar encabezados y datos
+                const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
+                
+                // Crear y descargar archivo
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' }); // BOM para UTF-8
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.download = `proveedores_ash_ling_${new Date().toISOString().split('T')[0]}.csv`;
+                
+                // Simular clic y limpiar
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                alert(`Se exportaron ${suppliersData.length} proveedores exitosamente`);
+            } catch (error) {
+                console.error('Error al exportar proveedores:', error);
+                alert('Error al exportar los proveedores. Por favor, inténtelo nuevamente.');
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('clientModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSupplierModal();
+            }
+        });
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Cargar datos de proveedores
+                suppliersData = loadSuppliersData();
+                
+                // Renderizar tabla y actualizar estadísticas
+                renderSuppliersTable();
+                updateStats();
+                
+                // Configurar eventos adicionales
+                setupEventListeners();
+                
+                console.log('Página de proveedores cargada correctamente');
+            } catch (error) {
+                console.error('Error al inicializar página de proveedores:', error);
+                alert('Error al cargar la página. Por favor, recargue la página.');
+            }
+        });
+
+        // Función para configurar event listeners adicionales
+        function setupEventListeners() {
+            // Event listener para Enter en búsqueda
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchSuppliers();
+                }
+            });
+            
+            // Event listener para Escape para cerrar modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeSupplierModal();
+                }
+            });
+        }
+    </script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvAr526Zdh9NFiRv7Vz4hBRQe9qq5lyoQ",
+            authDomain: "ash-ling-sistema.firebaseapp.com",
+            projectId: "ash-ling-sistema",
+            storageBucket: "ash-ling-sistema.firebasestorage.app",
+            messagingSenderId: "643413580483",
+            appId: "1:643413580483:web:d9433150520f96c6ff6076"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>

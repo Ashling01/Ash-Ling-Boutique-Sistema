@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - Ash-Ling Sistema Empresarial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
+        .container { display: flex; min-height: 100vh; position: relative; }
+        .container::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .sidebar { width: 300px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0; transition: all 0.3s ease; position: relative; z-index: 10; box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(255, 255, 255, 0.1); }
+        .logo-section { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+        .logo-section img { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .logo-section h2 { color: #ffffff; font-weight: 800; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .logo-section p { color: #94a3b8; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; }
+        .nav-menu { list-style: none; padding: 0 15px; }
+        .nav-item { margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 15px 20px; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500; font-size: 0.95rem; position: relative; overflow: hidden; }
+        .nav-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .nav-link:hover::before { left: 100%; }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateX(8px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .nav-link i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; position: relative; z-index: 5; background: rgba(255, 255, 255, 0.02); }
+        .header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 35px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #ffffff; font-weight: 800; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-actions { display: flex; gap: 15px; }
+        
+        /* Calendar Layout */
+        .calendar-layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        .calendar-container { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+        .sidebar-events { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+        
+        /* Calendar Header */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .calendar-nav { display: flex; align-items: center; gap: 20px; }
+        .nav-btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: all 0.3s ease; }
+        .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .current-month { font-size: 1.5rem; font-weight: 700; color: white; min-width: 200px; text-align: center; }
+        
+        /* Calendar Grid */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; }
+        .calendar-day { background: rgba(30, 41, 59, 0.6); padding: 15px 10px; min-height: 80px; display: flex; flex-direction: column; position: relative; cursor: pointer; transition: all 0.3s ease; }
+        .calendar-day:hover { background: rgba(99, 102, 241, 0.2); }
+        .calendar-day.today { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        .calendar-day.other-month { opacity: 0.3; }
+        .day-number { font-weight: 600; margin-bottom: 5px; color: white; }
+        .day-events { font-size: 0.7rem; color: #94a3b8; }
+        .day-header { background: rgba(99, 102, 241, 0.8); color: white; padding: 10px; text-align: center; font-weight: 600; font-size: 0.9rem; }
+        
+        /* Events */
+        .event-item { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; font-size: 0.7rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .event-item.meeting { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .event-item.reminder { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .event-item.task { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .event-item.appointment { background: linear-gradient(135deg, #ec4899, #db2777); }
+        
+        /* Sidebar Events */
+        .events-header { color: white; font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .events-header i { color: #10b981; }
+        .today-events { margin-bottom: 25px; }
+        .section-title { color: #94a3b8; font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .event-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .event-time { color: #10b981; font-weight: 600; font-size: 0.9rem; }
+        .event-title { color: white; font-weight: 600; margin: 5px 0; }
+        .event-description { color: #94a3b8; font-size: 0.8rem; line-height: 1.4; }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+        .modal-content { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { color: white; font-size: 1.5rem; font-weight: 700; }
+        .close { color: #94a3b8; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s ease; }
+        .close:hover { color: white; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 15px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; background: rgba(30, 41, 59, 0.8); color: white; font-size: 0.95rem; transition: all 0.3s ease; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        
+        /* Quick Add */
+        .quick-add { margin-bottom: 25px; }
+        .quick-add-form { display: flex; gap: 10px; }
+        .quick-input { flex: 1; }
+        
+        /* Responsive */
+        @media (max-width: 768px) { 
+            .sidebar { width: 70px; } 
+            .logo-section h2, .logo-section p, .nav-link span { display: none; } 
+            .main-content { padding: 15px; } 
+            .header { padding: 20px; flex-direction: column; gap: 15px; text-align: center; } 
+            .header-actions { flex-direction: column; width: 100%; }
+            .calendar-layout { grid-template-columns: 1fr; }
+            .calendar-nav { flex-direction: column; gap: 10px; }
+            .calendar-day { min-height: 60px; padding: 8px 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="ventas.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Ventas</span></a></li>
+                    <li class="nav-item"><a href="empleados.html" class="nav-link"><i class="fas fa-users"></i><span>Empleados</span></a></li>
+                    <li class="nav-item"><a href="facturacion.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Facturación</span></a></li>
+                    <li class="nav-item"><a href="inventario.html" class="nav-link"><i class="fas fa-box-open"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a href="clientes.html" class="nav-link"><i class="fas fa-handshake"></i><span>Clientes</span></a></li>
+                    <li class="nav-item"><a href="proveedores.html" class="nav-link"><i class="fas fa-truck"></i><span>Proveedores</span></a></li>
+                    <li class="nav-item"><a href="reportes.html" class="nav-link"><i class="fas fa-chart-line"></i><span>Reportes</span></a></li>
+                    <li class="nav-item"><a href="calendario.html" class="nav-link active"><i class="fas fa-calendar-alt"></i><span>Calendario</span></a></li>
+                    <li class="nav-item"><a href="configuracion.html" class="nav-link"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Calendario de Eventos</h1>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openEventModal()">
+                        <i class="fas fa-plus"></i> Nuevo Evento
+                    </button>
+                </div>
+            </header>
+
+            <div class="calendar-layout">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="nav-btn" onclick="previousMonth()">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="current-month" id="currentMonth"></div>
+                            <button class="nav-btn" onclick="nextMonth()">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+
+                <div class="sidebar-events">
+                    <div class="events-header">
+                        <i class="fas fa-calendar-check"></i>
+                        Eventos de Hoy
+                    </div>
+                    
+                    <div class="quick-add">
+                        <div class="section-title">Agregar Rápido</div>
+                        <div class="quick-add-form">
+                            <input type="text" class="form-input quick-input" id="quickEventTitle" placeholder="Título del evento...">
+                            <button class="btn btn-primary" onclick="addQuickEvent()">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="today-events" id="todayEvents">
+                        <!-- Today's events will be loaded here -->
+                    </div>
+
+                    <div class="section-title">Próximos Eventos</div>
+                    <div id="upcomingEvents">
+                        <!-- Upcoming events will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para agregar/editar eventos -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Nuevo Evento</div>
+                <span class="close" onclick="closeEventModal()">&times;</span>
+            </div>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label class="form-label">Título</label>
+                    <input type="text" id="eventTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha</label>
+                    <input type="date" id="eventDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hora</label>
+                    <input type="time" id="eventTime" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <select id="eventType" class="form-select">
+                        <option value="meeting">Reunión</option>
+                        <option value="reminder">Recordatorio</option>
+                        <option value="task">Tarea</option>
+                        <option value="appointment">Cita</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea id="eventDescription" class="form-textarea" placeholder="Descripción del evento..."></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-save"></i> Guardar Evento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let events = [];
+
+        // Cargar eventos desde localStorage
+        function loadEvents() {
+            const savedEvents = localStorage.getItem('calendarEvents');
+            events = savedEvents ? JSON.parse(savedEvents) : [];
+            
+            // Agregar algunos eventos de ejemplo si no hay datos
+            if (events.length === 0) {
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                
+                events = [
+                    {
+                        id: 1,
+                        title: 'Reunión con cliente',
+                        date: today,
+                        time: '10:00',
+                        type: 'meeting',
+                        description: 'Presentación de nuevos productos'
+                    },
+                    {
+                        id: 2,
+                        title: 'Revisar inventario',
+                        date: today,
+                        time: '15:30',
+                        type: 'task',
+                        description: 'Control de stock mensual'
+                    },
+                    {
+                        id: 3,
+                        title: 'Cita con proveedor',
+                        date: tomorrow,
+                        time: '09:00',
+                        type: 'appointment',
+                        description: 'Negociación de precios'
+                    }
+                ];
+                saveEvents();
+            }
+        }
+
+        // Guardar eventos en localStorage
+        function saveEvents() {
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+        }
+
+        // Generar calendario
+        function generateCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYear = document.getElementById('currentMonth');
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            monthYear.textContent = currentDate.toLocaleDateString('es', { 
+                month: 'long', 
+                year: 'numeric' 
+            }).toUpperCase();
+            
+            // Limpiar grid
+            grid.innerHTML = '';
+            
+            // Headers de días
+            const dayHeaders = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // Primer día del mes y último día
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            // Días del mes anterior
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const dayElement = createDayElement(prevMonthLastDay - i, true, new Date(year, month - 1, prevMonthLastDay - i));
+                grid.appendChild(dayElement);
+            }
+            
+            // Días del mes actual
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = createDayElement(day, false, new Date(year, month, day));
+                grid.appendChild(dayElement);
+            }
+            
+            // Días del mes siguiente
+            const totalCells = grid.children.length - 7; // Restar headers
+            const remainingCells = 42 - totalCells; // 6 semanas * 7 días
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = createDayElement(day, true, new Date(year, month + 1, day));
+                grid.appendChild(dayElement);
+            }
+        }
+
+        // Crear elemento de día
+        function createDayElement(dayNumber, otherMonth, date) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            if (otherMonth) dayElement.classList.add('other-month');
+            
+            // Verificar si es hoy
+            const today = new Date();
+            if (date.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+            
+            const dayNumberElement = document.createElement('div');
+            dayNumberElement.className = 'day-number';
+            dayNumberElement.textContent = dayNumber;
+            dayElement.appendChild(dayNumberElement);
+            
+            // Agregar eventos del día
+            const dayEvents = getDayEvents(date);
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'day-events';
+            
+            dayEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `event-item ${event.type}`;
+                eventElement.textContent = event.title;
+                eventElement.title = `${event.time} - ${event.title}`;
+                eventsContainer.appendChild(eventElement);
+            });
+            
+            dayElement.appendChild(eventsContainer);
+            
+            // Click handler
+            dayElement.addEventListener('click', () => {
+                openEventModal(date);
+            });
+            
+            return dayElement;
+        }
+
+        // Obtener eventos de un día específico
+        function getDayEvents(date) {
+            const dateString = date.toISOString().split('T')[0];
+            return events.filter(event => event.date === dateString);
+        }
+
+        // Navegar meses
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        }
+
+        // Modal functions
+        function openEventModal(selectedDate = null) {
+            const modal = document.getElementById('eventModal');
+            const form = document.getElementById('eventForm');
+            
+            form.reset();
+            
+            if (selectedDate) {
+                document.getElementById('eventDate').value = selectedDate.toISOString().split('T')[0];
+            } else {
+                document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeEventModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+
+        // Agregar evento
+        function addEvent(title, date, time, type, description) {
+            const event = {
+                id: Date.now(),
+                title,
+                date,
+                time,
+                type,
+                description
+            };
+            
+            events.push(event);
+            saveEvents();
+            generateCalendar();
+            updateTodayEvents();
+            updateUpcomingEvents();
+        }
+
+        // Agregar evento rápido
+        function addQuickEvent() {
+            const title = document.getElementById('quickEventTitle').value.trim();
+            if (!title) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const currentTime = new Date().toTimeString().slice(0, 5);
+            
+            addEvent(title, today, currentTime, 'reminder', '');
+            document.getElementById('quickEventTitle').value = '';
+        }
+
+        // Actualizar eventos de hoy
+        function updateTodayEvents() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayEvents = events.filter(event => event.date === today)
+                .sort((a, b) => a.time.localeCompare(b.time));
+            const container = document.getElementById('todayEvents');
+            
+            if (todayEvents.length === 0) {
+                container.innerHTML = '<div style="color: #94a3b8; font-style: italic;">No hay eventos para hoy</div>';
+                return;
+            }
+            
+            container.innerHTML = todayEvents.map(event => `
+                <div class="event-card">
+                    <div class="event-time">${event.time}</div>
+                    <div class="event-title">${event.title}</div>
+                    ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Actualizar próximos eventos
+        function updateUpcomingEvents() {
+            const today = new Date();
+            const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+            
+            const upcomingEvents = events.filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate > today && eventDate <= nextWeek;
+            }).sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            const container = document.getElementById('upcomingEvents');
+            
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = '<div style="color: #94a3b8; font-style: italic;">No hay eventos próximos</div>';
+                return;
+            }
+            
+            container.innerHTML = upcomingEvents.map(event => `
+                <div class="event-card">
+                    <div class="event-time">${new Date(event.date).toLocaleDateString('es', { month: 'short', day: 'numeric' })} - ${event.time}</div>
+                    <div class="event-title">${event.title}</div>
+                    ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Event handlers
+        document.getElementById('eventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value;
+            
+            addEvent(title, date, time, type, description);
+            closeEventModal();
+        });
+
+        // Cerrar modal al hacer click fuera
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('eventModal');
+            if (e.target === modal) {
+                closeEventModal();
+            }
+        });
+
+        // Enter key en quick add
+        document.getElementById('quickEventTitle').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addQuickEvent();
+            }
+        });
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                loadEvents();
+                generateCalendar();
+                updateTodayEvents();
+                updateUpcomingEvents();
+                console.log('Calendario cargado correctamente');
+            } catch (error) {
+                console.error('Error al inicializar calendario:', error);
+            }
+        });
+    </script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvAr526Zdh9NFiRv7Vz4hBRQe9qq5lyoQ",
+            authDomain: "ash-ling-sistema.firebaseapp.com",
+            projectId: "ash-ling-sistema",
+            storageBucket: "ash-ling-sistema.firebasestorage.app",
+            messagingSenderId: "643413580483",
+            appId: "1:643413580483:web:d9433150520f96c6ff6076"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>

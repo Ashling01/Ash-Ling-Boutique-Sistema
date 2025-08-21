@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ash-Ling - Sistema de Control Empresarial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Background Effects */
+        .container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.3),
+                inset 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-section {
+            padding: 30px 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+        }
+
+        .logo-section img {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo-section h2 {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 
+                0 8px 25px rgba(99, 102, 241, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Submenu Styles */
+        .nav-submenu {
+            list-style: none;
+            padding-left: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .nav-submenu.open {
+            max-height: 200px;
+        }
+
+        .nav-submenu .nav-link {
+            padding: 10px 20px 10px 55px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .nav-submenu .nav-link:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateX(4px);
+        }
+
+        .nav-toggle {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            float: right;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px 35px;
+            margin-bottom: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cbd5e1;
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .metric-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .metric-change.positive {
+            color: #10b981;
+        }
+
+        .metric-change.negative {
+            color: #ef4444;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-filters {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .chart-container {
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        /* Activity Section */
+        .activity-section {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-header {
+            margin-bottom: 30px;
+        }
+
+        .activity-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding-left: 15px;
+            padding-right: 15px;
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 18px;
+            color: white;
+            font-size: 1rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: #e2e8f0;
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .activity-time {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 10px 0;
+            }
+
+            .logo-section h2,
+            .logo-section p,
+            .nav-link span {
+                display: none;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Color variants */
+        .bg-blue { 
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        .bg-green { 
+            background: linear-gradient(135deg, #10b981, #047857);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        .bg-purple { 
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+        .bg-orange { 
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        .bg-red { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        .bg-teal { 
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4);
+        }
+
+        /* Loading animations */
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
+        .loading {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Enhanced scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8, #7c3aed);
+        }
+
+        /* Chart containers enhanced */
+        .chart-container canvas {
+            border-radius: 12px;
+        }
+
+        /* Improved responsiveness */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 10px 0;
+            }
+
+            .logo-section h2,
+            .logo-section p,
+            .nav-link span,
+            .nav-toggle {
+                display: none;
+            }
+
+            .nav-submenu {
+                display: none !important;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .metric-value {
+                font-size: 2.2rem;
+            }
+
+            .chart-section {
+                padding: 20px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .chart-filters {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Dark mode enhancements */
+        .metric-card, .chart-section, .activity-section, .header {
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Floating effects */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .metric-icon {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .metric-icon:nth-child(2n) {
+            animation-delay: 1s;
+        }
+
+        .metric-icon:nth-child(3n) {
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="ventas.html" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Ventas</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="empleados.html" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>Empleados</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="facturacion.html" class="nav-link">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Facturación</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="inventario.html" class="nav-link">
+                            <i class="fas fa-box-open"></i>
+                            <span>Inventario</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="clientes.html" class="nav-link">
+                            <i class="fas fa-handshake"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="proveedores.html" class="nav-link">
+                            <i class="fas fa-truck"></i>
+                            <span>Proveedores</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="reportes.html" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="calendario.html" class="nav-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Calendario</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="configuracion.html" class="nav-link">
+                            <i class="fas fa-cog"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1>Centro de Control Ash-Ling</h1>
+                <div class="user-info">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+                    <div class="user-avatar">AL</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Metrics -->
+            <div class="dashboard-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Ventas del Mes</span>
+                        <div class="metric-icon bg-blue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="monthSales">$87,245</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +8.3% vs mes anterior
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Órdenes Pendientes</span>
+                        <div class="metric-icon bg-orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="pendingOrders">23</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +5 desde ayer
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Clientes Activos</span>
+                        <div class="metric-icon bg-green">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="activeClients">342</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +12 nuevos esta semana
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Productos en Stock</span>
+                        <div class="metric-icon bg-purple">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="productsInStock">1,847</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        Stock saludable
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Proveedores Activos</span>
+                        <div class="metric-icon bg-teal">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="activeSuppliers">28</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +2 este mes
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Eficiencia Operativa</span>
+                        <div class="metric-icon bg-red">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="metric-value" id="efficiency">94%</div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +3% esta semana
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">Análisis de Ventas</h3>
+                    <div class="chart-filters">
+                        <button class="filter-btn active" onclick="updateChart('7days')">7 días</button>
+                        <button class="filter-btn" onclick="updateChart('30days')">30 días</button>
+                        <button class="filter-btn" onclick="updateChart('90days')">90 días</button>
+                        <button class="filter-btn" onclick="updateChart('1year')">1 año</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Additional Charts Row -->
+            <div class="dashboard-grid" style="margin-bottom: 30px;">
+                <div class="chart-section" style="margin-bottom: 0;">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Ventas por Categoría</h3>
+                    </div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-section" style="margin-bottom: 0;">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Distribución de Clientes</h3>
+                    </div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="customersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="activity-header">
+                    <h3 class="activity-title">Actividad Reciente</h3>
+                </div>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <div class="activity-icon bg-green">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Nuevo cliente registrado: Distribuidora Central S.A.</div>
+                            <div class="activity-time">Hace 25 minutos</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon bg-blue">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Venta completada #ASH-2024-0847 por $2,350.75</div>
+                            <div class="activity-time">Hace 42 minutos</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon bg-orange">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Alerta: Stock bajo en Mouse Logitech MX (8 unidades)</div>
+                            <div class="activity-time">Hace 1 hora</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon bg-purple">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Nuevo proveedor: Importaciones Tech Panamá</div>
+                            <div class="activity-time">Hace 2 horas</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon bg-teal">
+                            <i class="fas fa-box-check"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Inventario actualizado: +150 unidades recibidas</div>
+                            <div class="activity-time">Hace 4 horas</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Variables globales para los gráficos
+        let salesChart, productsChart, customersChart;
+
+        // Función para cargar datos reales del sistema
+        function loadRealDashboardData() {
+            try {
+                // Cargar datos de ventas
+                const salesData = JSON.parse(localStorage.getItem('salesData')) || [];
+                const inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
+                const clientsData = JSON.parse(localStorage.getItem('clientsData')) || [];
+                const suppliersData = JSON.parse(localStorage.getItem('suppliersData')) || [];
+
+                // Calcular métricas reales
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                // Ventas del mes actual
+                const monthSales = salesData
+                    .filter(sale => {
+                        const saleDate = new Date(sale.date);
+                        return saleDate.getMonth() === currentMonth && saleDate.getFullYear() === currentYear;
+                    })
+                    .reduce((total, sale) => total + sale.total, 0);
+
+                // Órdenes pendientes
+                const pendingOrders = salesData.filter(sale => sale.status === 'Pendiente').length;
+
+                // Clientes activos
+                const activeClients = clientsData.filter(client => client.status === 'Activo').length;
+
+                // Productos en stock
+                const productsInStock = inventoryData.reduce((total, product) => total + product.stock, 0);
+
+                // Proveedores activos
+                const activeSuppliers = suppliersData.filter(supplier => supplier.status === 'Activo').length;
+
+                // Productos con stock bajo (menos de 50 unidades)
+                const lowStockProducts = inventoryData.filter(product => product.stock < 50).length;
+                const totalProducts = inventoryData.length;
+                const efficiency = totalProducts > 0 ? Math.round(((totalProducts - lowStockProducts) / totalProducts) * 100) : 94;
+
+                // Actualizar la interfaz
+                updateDashboardMetrics({
+                    monthSales: monthSales,
+                    pendingOrders: pendingOrders,
+                    activeClients: activeClients,
+                    productsInStock: productsInStock,
+                    activeSuppliers: activeSuppliers,
+                    efficiency: efficiency
+                });
+
+            } catch (error) {
+                console.error('Error al cargar datos del dashboard:', error);
+                // Mantener valores por defecto si hay error
+            }
+        }
+
+        // Función para actualizar las métricas en la interfaz
+        function updateDashboardMetrics(data) {
+            if (document.getElementById('monthSales')) {
+                document.getElementById('monthSales').textContent = `$${data.monthSales.toLocaleString('es-ES', { minimumFractionDigits: 0 })}`;
+            }
+            if (document.getElementById('pendingOrders')) {
+                document.getElementById('pendingOrders').textContent = data.pendingOrders;
+            }
+            if (document.getElementById('activeClients')) {
+                document.getElementById('activeClients').textContent = data.activeClients.toLocaleString('es-ES');
+            }
+            if (document.getElementById('productsInStock')) {
+                document.getElementById('productsInStock').textContent = data.productsInStock.toLocaleString('es-ES');
+            }
+            if (document.getElementById('activeSuppliers')) {
+                document.getElementById('activeSuppliers').textContent = data.activeSuppliers;
+            }
+            if (document.getElementById('efficiency')) {
+                document.getElementById('efficiency').textContent = `${data.efficiency}%`;
+            }
+        }
+
+        // Función para actualizar gráficos con datos reales
+        function updateChartsWithRealData() {
+            try {
+                const inventoryData = JSON.parse(localStorage.getItem('inventoryData')) || [];
+                const salesData = JSON.parse(localStorage.getItem('salesData')) || [];
+                
+                // Actualizar gráfico de productos por categoría si hay datos
+                if (inventoryData.length > 0 && productsChart) {
+                    // Categorías del inventario
+                    const categories = ['carteras', 'accesorios', 'ropa-dama', 'ropa-caballero', 'perfume'];
+                    const categoryLabels = ['Carteras', 'Accesorios', 'Ropa de Dama', 'Ropa de Caballero', 'Perfume'];
+                    const categorySales = [];
+                    
+                    // Calcular ventas por categoría
+                    categories.forEach(category => {
+                        const categoryProducts = inventoryData.filter(product => 
+                            product.category === category || product.category === categoryLabels[categories.indexOf(category)]
+                        );
+                        
+                        // Calcular total de ventas para esta categoría
+                        const totalSales = categoryProducts.reduce((total, product) => {
+                            // Si el producto tiene un campo de ventas, usarlo, sino calcular basado en stock inicial vs actual
+                            let sales = product.sales || 0;
+                            if (!sales && product.initialStock) {
+                                sales = Math.max(0, product.initialStock - product.stock);
+                            } else if (!sales) {
+                                // Simular ventas basadas en la popularidad de la categoría
+                                const popularity = {
+                                    'carteras': 0.8,
+                                    'accesorios': 0.9,
+                                    'ropa-dama': 0.6,
+                                    'ropa-caballero': 0.5,
+                                    'perfume': 0.7
+                                };
+                                sales = Math.floor(Math.random() * 50 * (popularity[category] || 0.5)) + 10;
+                            }
+                            return total + sales;
+                        }, 0);
+                        
+                        categorySales.push(totalSales);
+                    });
+                    
+                    // Solo actualizar si hay datos de ventas
+                    if (categorySales.some(sales => sales > 0)) {
+                        productsChart.data.labels = categoryLabels;
+                        productsChart.data.datasets[0].data = categorySales;
+                        productsChart.update();
+                    }
+                }
+                
+                // Actualizar gráfico de ventas con datos de los últimos 7 días
+                if (salesData.length > 0 && salesChart) {
+                    const last7Days = [];
+                    const today = new Date();
+                    
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() - i);
+                        const dayName = date.toLocaleDateString('es-ES', { weekday: 'short' });
+                        const dayStr = date.toISOString().split('T')[0];
+                        
+                        const daySales = salesData
+                            .filter(sale => sale.date === dayStr)
+                            .reduce((total, sale) => total + sale.total, 0);
+                        
+                        last7Days.push({ day: dayName, sales: daySales });
+                    }
+                    
+                    if (last7Days.some(d => d.sales > 0)) {
+                        salesChart.data.labels = last7Days.map(d => d.day);
+                        salesChart.data.datasets[0].data = last7Days.map(d => d.sales);
+                        salesChart.update();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error al actualizar gráficos con datos reales:', error);
+            }
+        }
+
+        // Función para alternar submenús
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const toggle = document.getElementById(submenuId.replace('-submenu', '-toggle'));
+            
+            submenu.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        // Funcionalidad básica para la navegación
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Manejo de navegación lateral
+            navLinks.forEach(link => {
+                // Solo agregar preventDefault para links que no tienen href real
+                if (link.getAttribute('href') === '#' && !link.getAttribute('onclick')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                }
+            });
+
+            // Inicializar gráficos
+            initializeCharts();
+
+            // Cargar datos reales del sistema
+            loadRealDashboardData();
+            
+            // Actualizar gráficos con datos reales
+            updateChartsWithRealData();
+
+            // Animación de las tarjetas métricas
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                    card.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
+            });
+
+            // Simulación de notificaciones en tiempo real
+            setInterval(() => {
+                const notificationBadge = document.querySelector('.notification-badge');
+                notificationBadge.style.animation = 'pulse 2s infinite';
+            }, 15000);
+        });
+
+        // Función para inicializar todos los gráficos
+        function initializeCharts() {
+            initializeSalesChart();
+            initializeProductsChart();
+            initializeCustomersChart();
+        }
+
+        // Gráfico principal de ventas
+        function initializeSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: [8500, 12400, 9800, 15600, 18200, 21300, 16700],
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }, {
+                        label: 'Objetivo ($)',
+                        data: [10000, 12000, 11000, 14000, 16000, 18000, 15000],
+                        borderColor: 'rgb(139, 92, 246)',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(139, 92, 246)',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 12,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Gráfico de ventas por categoría
+        function initializeProductsChart() {
+            const ctx = document.getElementById('productsChart').getContext('2d');
+            
+            productsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Carteras', 'Accesorios', 'Ropa de Dama', 'Ropa de Caballero', 'Perfume'],
+                    datasets: [{
+                        label: 'Ventas por Categoría',
+                        data: [65, 89, 42, 38, 73],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 101, 101, 0.8)',
+                            'rgba(251, 146, 60, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(139, 92, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 101, 101)',
+                            'rgb(251, 146, 60)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de distribución de clientes
+        function initializeCustomersChart() {
+            const ctx = document.getElementById('customersChart').getContext('2d');
+            
+            customersChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Clientes Nuevos', 'Clientes Regulares', 'Clientes VIP', 'Inactivos'],
+                    datasets: [{
+                        data: [28, 52, 18, 2],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 101, 101, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(139, 92, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(245, 101, 101)'
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0',
+                                font: {
+                                    size: 11,
+                                    weight: '500'
+                                },
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        // Función para actualizar el gráfico principal según el período
+        function updateChart(period) {
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Datos según el período
+            let newData, newLabels;
+            
+            switch(period) {
+                case '7days':
+                    newLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+                    newData = [12000, 19000, 15000, 25000, 22000, 30000, 28000];
+                    break;
+                case '30days':
+                    newLabels = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+                    newData = [85000, 92000, 78000, 105000];
+                    break;
+                case '90days':
+                    newLabels = ['Mes 1', 'Mes 2', 'Mes 3'];
+                    newData = [320000, 285000, 365000];
+                    break;
+                case '1year':
+                    newLabels = ['Q1', 'Q2', 'Q3', 'Q4'];
+                    newData = [950000, 1120000, 980000, 1250000];
+                    break;
+            }
+
+            // Actualizar el gráfico
+            salesChart.data.labels = newLabels;
+            salesChart.data.datasets[0].data = newData;
+            salesChart.data.datasets[1].data = newData.map(val => val * 1.1); // Objetivo 10% mayor
+            salesChart.update('active');
+        }
+
+        // Función para actualizar métricas (simulada con datos más realistas)
+        function updateMetrics() {
+            const metricValues = document.querySelectorAll('.metric-value');
+            metricValues.forEach((value, index) => {
+                // Simulación de actualización de datos con variaciones menores
+                const current = parseFloat(value.textContent.replace(/[$,%]/g, ''));
+                const variation = (Math.random() - 0.5) * 0.02; // ±1% de variación
+                let newValue = Math.round(current * (1 + variation));
+                
+                if (value.textContent.includes('$')) {
+                    value.textContent = `$${newValue.toLocaleString()}`;
+                } else if (value.textContent.includes('%')) {
+                    newValue = Math.min(100, Math.max(0, newValue)); // Limitar entre 0-100%
+                    value.textContent = `${newValue}%`;
+                } else {
+                    value.textContent = newValue.toLocaleString();
+                }
+                
+                // Efecto de actualización
+                value.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    value.style.transform = 'scale(1)';
+                }, 200);
+            });
+        }
+
+        // Actualizar métricas cada 45 segundos
+        setInterval(updateMetrics, 45000);
+
+        // Función para simular datos en tiempo real en los gráficos
+        function updateChartsRealTime() {
+            // Actualizar gráfico de ventas con nuevos datos
+            if (salesChart) {
+                const lastValue = salesChart.data.datasets[0].data[salesChart.data.datasets[0].data.length - 1];
+                const newValue = lastValue + (Math.random() - 0.5) * 5000;
+                
+                salesChart.data.datasets[0].data.push(Math.max(0, newValue));
+                salesChart.data.datasets[0].data.shift();
+                salesChart.update('none');
+            }
+        }
+
+        // Actualizar gráficos cada 60 segundos
+        setInterval(updateChartsRealTime, 60000);
+    </script>
+
+    <!-- Styles para animaciones adicionales -->
+    <style>
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .metric-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+    </style>
+
+    <script type="module">
+        // Importar configuración centralizada de Firebase
+        import app, { auth, db, storage, analytics, firebaseUtils, ashLingConfig } from './firebase-config.js';
+        
+        // Sistema de autenticación y gestión de usuarios
+        class AshLingAuth {
+            constructor() {
+                this.currentUser = null;
+                this.isAuthenticated = false;
+                this.init();
+            }
+            
+            init() {
+                // Inicializar directamente sin autenticación
+                firebaseUtils.log('Sistema iniciado en modo libre - sin autenticación requerida');
+                this.currentUser = {
+                    uid: 'guest-user',
+                    email: 'usuario@ash-ling.local',
+                    displayName: 'Usuario Libre',
+                    isGuest: true
+                };
+                this.isAuthenticated = true;
+                this.handleAuthSuccess();
+            }
+            
+            handleAuthSuccess() {
+                this.showDashboard();
+                this.loadUserPreferences();
+                this.startBackupSchedule();
+            }
+            
+            showDashboard() {
+                // Mostrar el dashboard principal
+                document.body.classList.add('authenticated');
+                this.updateUserInfo();
+                this.loadSystemData();
+            }
+            
+            showLoginForm() {
+                // Crear modal de login si no existe
+                if (!document.getElementById('loginModal')) {
+                    this.createLoginModal();
+                }
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+            
+            createLoginModal() {
+                const modalHTML = `
+                    <div id="loginModal" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10000;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                            padding: 3rem;
+                            border-radius: 20px;
+                            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+                            backdrop-filter: blur(10px);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            max-width: 400px;
+                            width: 90%;
+                        ">
+                            <h2 style="color: #fff; text-align: center; margin-bottom: 2rem; font-size: 1.8rem;">
+                                🔐 Acceso Ash-Ling
+                            </h2>
+                            <form id="loginForm">
+                                <div style="margin-bottom: 1.5rem;">
+                                    <input type="email" id="loginEmail" placeholder="Email" required style="
+                                        width: 100%;
+                                        padding: 12px 16px;
+                                        border: 1px solid rgba(255,255,255,0.2);
+                                        border-radius: 10px;
+                                        background: rgba(255,255,255,0.1);
+                                        color: #fff;
+                                        font-size: 16px;
+                                    ">
+                                </div>
+                                <div style="margin-bottom: 2rem;">
+                                    <input type="password" id="loginPassword" placeholder="Contraseña" required style="
+                                        width: 100%;
+                                        padding: 12px 16px;
+                                        border: 1px solid rgba(255,255,255,0.2);
+                                        border-radius: 10px;
+                                        background: rgba(255,255,255,0.1);
+                                        color: #fff;
+                                        font-size: 16px;
+                                    ">
+                                </div>
+                                <button type="submit" style="
+                                    width: 100%;
+                                    padding: 12px;
+                                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                                    border: none;
+                                    border-radius: 10px;
+                                    color: white;
+                                    font-size: 16px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                ">
+                                    Iniciar Sesión
+                                </button>
+                                <div style="text-align: center; margin-top: 1rem;">
+                                    <a href="#" id="registerLink" style="color: #60a5fa; text-decoration: none;">
+                                        ¿No tienes cuenta? Regístrate
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                this.setupLoginFormHandlers();
+            }
+            
+            setupLoginFormHandlers() {
+                const form = document.getElementById('loginForm');
+                const registerLink = document.getElementById('registerLink');
+                
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await this.login();
+                });
+                
+                registerLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.showRegisterForm();
+                });
+            }
+            
+            async login() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    // Autenticación Firebase
+                    await auth.signInWithEmailAndPassword(email, password);
+                    document.getElementById('loginModal').style.display = 'none';
+                    this.showNotification('✅ Sesión iniciada exitosamente', 'success');
+                } catch (error) {
+                    const errorMsg = firebaseUtils.handleError(error, 'Iniciar Sesión');
+                    this.showNotification(`❌ ${errorMsg}`, 'error');
+                }
+            }
+            
+            async logout() {
+                try {
+                    await auth.signOut();
+                    this.showNotification('✅ Sesión cerrada exitosamente', 'success');
+                } catch (error) {
+                    const errorMsg = firebaseUtils.handleError(error, 'Cerrar Sesión');
+                    this.showNotification(`❌ ${errorMsg}`, 'error');
+                }
+            }
+            
+            updateUserInfo() {
+                if (this.currentUser) {
+                    // Actualizar información del usuario en la interfaz
+                    const userElements = document.querySelectorAll('.user-name');
+                    userElements.forEach(el => {
+                        el.textContent = this.currentUser.displayName || this.currentUser.email;
+                    });
+                }
+            }
+            
+            loadUserPreferences() {
+                // Cargar preferencias del usuario desde localStorage para modo libre
+                if (this.currentUser) {
+                    if (this.currentUser.isGuest) {
+                        firebaseUtils.log('Modo libre: usando configuración local');
+                        // Cargar preferencias locales si existen
+                        const localPrefs = localStorage.getItem('userPreferences');
+                        if (localPrefs) {
+                            try {
+                                const prefs = JSON.parse(localPrefs);
+                                firebaseUtils.log('Preferencias locales cargadas', prefs);
+                            } catch (error) {
+                                firebaseUtils.log('Error al cargar preferencias locales');
+                            }
+                        }
+                        return;
+                    }
+                    
+                    db.collection('users').doc(this.currentUser.uid).get()
+                        .then(doc => {
+                            if (doc.exists) {
+                                const prefs = doc.data();
+                                firebaseUtils.log('Preferencias cargadas', prefs);
+                            }
+                        })
+                        .catch(error => {
+                            firebaseUtils.handleError(error, 'Cargar Preferencias');
+                        });
+                }
+            }
+            
+            startBackupSchedule() {
+                // Programar backups automáticos cada 24 horas
+                setInterval(() => {
+                    this.createSystemBackup();
+                }, ashLingConfig.system.BACKUP_INTERVAL);
+            }
+            
+            async createSystemBackup() {
+                try {
+                    // En modo libre, crear backup solo local
+                    if (this.currentUser && this.currentUser.isGuest) {
+                        const backupData = {
+                            timestamp: new Date(),
+                            userId: this.currentUser.uid,
+                            inventoryData: localStorage.getItem('inventoryData'),
+                            userPreferences: localStorage.getItem('userPreferences'),
+                            systemSettings: localStorage.getItem('systemSettings')
+                        };
+                        
+                        // Guardar backup en localStorage
+                        const backups = JSON.parse(localStorage.getItem('localBackups') || '[]');
+                        backups.push(backupData);
+                        
+                        // Mantener solo los últimos 10 backups
+                        if (backups.length > 10) {
+                            backups.splice(0, backups.length - 10);
+                        }
+                        
+                        localStorage.setItem('localBackups', JSON.stringify(backups));
+                        firebaseUtils.log('Backup local creado exitosamente');
+                        return;
+                    }
+                    
+                    const backupData = {
+                        timestamp: new Date(),
+                        userId: this.currentUser?.uid,
+                        inventoryData: localStorage.getItem('inventoryData'),
+                        userPreferences: localStorage.getItem('userPreferences'),
+                        systemSettings: localStorage.getItem('systemSettings')
+                    };
+                    
+                    await db.collection(ashLingConfig.collections.ANALYTICS)
+                        .doc('backups')
+                        .collection('daily')
+                        .add(backupData);
+                    
+                    firebaseUtils.log('Backup automático creado exitosamente');
+                } catch (error) {
+                    firebaseUtils.handleError(error, 'Crear Backup');
+                }
+            }
+            
+            loadSystemData() {
+                // Sincronizar datos del sistema con Firebase
+                this.syncInventoryData();
+                this.loadAnalytics();
+            }
+            
+            async syncInventoryData() {
+                try {
+                    // En modo libre, solo usar datos locales
+                    if (this.currentUser && this.currentUser.isGuest) {
+                        firebaseUtils.log('Modo libre: usando solo datos locales');
+                        return;
+                    }
+                    
+                    // Intentar cargar desde Firebase primero
+                    const doc = await db.collection(ashLingConfig.collections.INVENTORY)
+                        .doc('current').get();
+                    
+                    if (doc.exists) {
+                        const cloudData = doc.data();
+                        const localData = localStorage.getItem('inventoryData');
+                        
+                        if (!localData || new Date(cloudData.lastUpdated) > new Date(localStorage.getItem('lastSyncTime'))) {
+                            localStorage.setItem('inventoryData', JSON.stringify(cloudData.data));
+                            localStorage.setItem('lastSyncTime', new Date().toISOString());
+                            firebaseUtils.log('Inventario sincronizado desde la nube');
+                        }
+                    }
+                } catch (error) {
+                    firebaseUtils.handleError(error, 'Sincronizar Inventario');
+                }
+            }
+            
+            async loadAnalytics() {
+                try {
+                    const analyticsData = await db.collection(ashLingConfig.collections.ANALYTICS)
+                        .doc('summary').get();
+                    
+                    if (analyticsData.exists) {
+                        const data = analyticsData.data();
+                        this.updateDashboardMetrics(data);
+                    }
+                } catch (error) {
+                    firebaseUtils.handleError(error, 'Cargar Analytics');
+                }
+            }
+            
+            updateDashboardMetrics(data) {
+                // Actualizar métricas en el dashboard
+                firebaseUtils.log('Actualizando métricas del dashboard', data);
+            }
+            
+            showNotification(message, type = 'info') {
+                // Sistema de notificaciones
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                    color: white;
+                    border-radius: 10px;
+                    z-index: 10001;
+                    font-weight: 500;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 4000);
+            }
+        }
+        
+        // Sistema de Analytics en tiempo real
+        class AshLingAnalytics {
+            constructor() {
+                this.sessionStart = new Date();
+                this.pageViews = 0;
+                this.init();
+            }
+            
+            init() {
+                this.trackPageView();
+                this.setupEventTracking();
+                this.startSessionTracking();
+            }
+            
+            trackPageView() {
+                this.pageViews++;
+                if (analytics) {
+                    analytics.logEvent('page_view', {
+                        page_title: document.title,
+                        page_location: window.location.href,
+                        timestamp: Date.now()
+                    });
+                }
+                firebaseUtils.log('Page view tracked');
+            }
+            
+            trackEvent(eventName, parameters = {}) {
+                if (analytics) {
+                    analytics.logEvent(eventName, {
+                        ...parameters,
+                        timestamp: Date.now(),
+                        user_id: auth.currentUser?.uid
+                    });
+                }
+                
+                // También guardar en Firestore para análisis detallado
+                if (auth.currentUser) {
+                    db.collection(ashLingConfig.collections.ANALYTICS)
+                        .doc('events')
+                        .collection('user_events')
+                        .add({
+                            event: eventName,
+                            parameters,
+                            userId: auth.currentUser.uid,
+                            timestamp: new Date()
+                        })
+                        .catch(error => firebaseUtils.handleError(error, 'Track Event'));
+                }
+            }
+            
+            setupEventTracking() {
+                // Track clicks en navegación
+                document.addEventListener('click', (e) => {
+                    if (e.target.matches('nav a, .nav-item')) {
+                        this.trackEvent('navigation_click', {
+                            target: e.target.textContent,
+                            href: e.target.href
+                        });
+                    }
+                });
+                
+                // Track uso de funcionalidades
+                document.addEventListener('click', (e) => {
+                    if (e.target.matches('.btn, button')) {
+                        this.trackEvent('button_click', {
+                            button_text: e.target.textContent,
+                            button_id: e.target.id
+                        });
+                    }
+                });
+            }
+            
+            startSessionTracking() {
+                // Track duración de sesión cada 30 segundos
+                setInterval(() => {
+                    const sessionDuration = Date.now() - this.sessionStart.getTime();
+                    
+                    if (analytics) {
+                        analytics.logEvent('session_duration', {
+                            duration_ms: sessionDuration,
+                            page_views: this.pageViews
+                        });
+                    }
+                }, 30000);
+            }
+        }
+        
+        // Inicializar sistemas
+        let ashLingAuth, ashLingAnalytics;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            firebaseUtils.log('🚀 Inicializando Ash-Ling Sistema Empresarial en modo libre');
+            
+            // Inicializar autenticación
+            ashLingAuth = new AshLingAuth();
+            
+            // Inicializar analytics
+            ashLingAnalytics = new AshLingAnalytics();
+            
+            // NO agregar botón de logout en modo libre
+            // El sistema funciona sin autenticación
+            
+            // Sincronización automática cada 5 minutos (solo si no está en modo libre)
+            setInterval(() => {
+                if (ashLingAuth.isAuthenticated && !ashLingAuth.currentUser?.isGuest) {
+                    ashLingAuth.syncInventoryData();
+                }
+            }, 5 * 60 * 1000);
+            
+            firebaseUtils.log('✅ Sistema Ash-Ling inicializado completamente en modo libre');
+        });
+        
+        // Exponer funciones globales para usar desde otros scripts
+        window.ashLing = {
+            auth: ashLingAuth,
+            analytics: ashLingAnalytics,
+            firebase: { auth, db, storage, analytics },
+            utils: firebaseUtils,
+            config: ashLingConfig
+        };
+        
+    </script>
+</body>
+</html>

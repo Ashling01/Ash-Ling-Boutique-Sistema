@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - Ash-Ling Sistema Empresarial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
+        
+        .container { display: flex; min-height: 100vh; position: relative; }
+        .container::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        
+        /* Sidebar Styles */
+        .sidebar { width: 300px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0; transition: all 0.3s ease; position: relative; z-index: 10; box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(255, 255, 255, 0.1); }
+        .logo-section { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+        .logo-section img { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .logo-section h2 { color: #ffffff; font-weight: 800; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .logo-section p { color: #94a3b8; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; }
+        
+        .nav-menu { list-style: none; padding: 0 15px; }
+        .nav-item { margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 15px 20px; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500; font-size: 0.95rem; position: relative; overflow: hidden; }
+        .nav-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .nav-link:hover::before { left: 100%; }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateX(8px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .nav-link i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        
+        /* Main Content Styles */
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; position: relative; z-index: 5; background: rgba(255, 255, 255, 0.02); }
+        
+        .header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 35px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #ffffff; font-weight: 800; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .stat-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899); }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        
+        .stat-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 15px; }
+        .stat-icon.sales { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .stat-icon.revenue { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+        .stat-icon.products { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .stat-icon.pending { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        
+        .stat-value { font-size: 2.5rem; font-weight: 800; color: #ffffff; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
+        .stat-change { font-size: 0.85rem; font-weight: 600; }
+        .stat-change.positive { color: #10b981; }
+        .stat-change.negative { color: #ef4444; }
+        
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px; }
+        
+        /* Sales Form */
+        .sales-section { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .section-title { color: #ffffff; font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; }
+        .section-title i { color: #6366f1; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-label { display: block; color: #e2e8f0; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        .form-input, .form-select { width: 100%; padding: 15px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; background: rgba(30, 41, 59, 0.8); color: #ffffff; font-size: 1rem; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); background: rgba(30, 41, 59, 0.9); }
+        .form-input:disabled { background: rgba(100, 116, 139, 0.3); color: #64748b; cursor: not-allowed; border-color: rgba(100, 116, 139, 0.3); }
+        .form-input::placeholder { color: #64748b; }
+        
+        /* Estilos para opciones de select */
+        .form-select option { background: #1e293b; color: #ffffff; padding: 10px; }
+        .form-select option:hover { background: #334155; }
+        .form-select option:checked { background: #6366f1; color: #ffffff; }
+        .form-select option:disabled { color: #64748b; }
+        
+        /* Estilos adicionales para textarea */
+        textarea.form-input { resize: vertical; min-height: 80px; }
+        textarea.form-input::placeholder { color: #64748b; opacity: 0.8; }
+        
+        .product-item { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .product-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; align-items: center; }
+        .product-total { font-weight: 600; color: #10b981; }
+        
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 15px 25px; border: none; border-radius: 12px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; text-decoration: none; justify-content: center; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5); }
+        
+        .total-section { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 15px; padding: 20px; margin-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .total-label { color: #94a3b8; font-weight: 600; }
+        .total-value { color: #ffffff; font-weight: 700; font-size: 1.1rem; }
+        .final-total { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px; margin-top: 15px; }
+        .final-total .total-value { font-size: 1.5rem; color: #10b981; }
+        
+        /* Sales Registry */
+        .sales-registry { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        
+        .filter-controls { margin-bottom: 20px; }
+        .filter-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .filter-group { display: flex; gap: 10px; align-items: center; }
+        .filter-input, .filter-select { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px 12px; color: #ffffff; font-size: 0.9rem; }
+        .filter-input::placeholder { color: #94a3b8; }
+        
+        .table-container { background: rgba(255, 255, 255, 0.02); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+        .sales-table { width: 100%; border-collapse: collapse; }
+        .sales-table th { background: rgba(99, 102, 241, 0.1); color: #e2e8f0; padding: 12px 15px; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .sales-table td { padding: 12px 15px; color: #cbd5e1; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .sales-table tr:hover { background: rgba(255, 255, 255, 0.05); }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; }
+        .status-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .pagination-info { color: #94a3b8; font-size: 0.9rem; }
+        .pagination-controls { display: flex; gap: 10px; align-items: center; }
+        .pagination-controls span { color: #e2e8f0; font-weight: 500; }
+        
+        /* Charts Section */
+        .charts-section { grid-column: 1 / -1; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 20px; }
+        .chart-container { background: rgba(255, 255, 255, 0.02); border-radius: 15px; padding: 20px; }
+        
+        /* Notification Styles */
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px 20px; border-radius: 12px; color: white; font-weight: 600; z-index: 1000; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
+        .notification.show { opacity: 1; transform: translateX(0); }
+        .notification.success { background: linear-gradient(135deg, #10b981, #059669); }
+        .notification.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { 
+            .sidebar { width: 70px; } 
+            .logo-section h2, .logo-section p, .nav-link span { display: none; } 
+            .main-content { padding: 15px; } 
+            .header { padding: 20px; flex-direction: column; gap: 15px; } 
+            .header h1 { font-size: 1.8rem; } 
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .product-row { grid-template-columns: 1fr; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="ventas.html" class="nav-link active"><i class="fas fa-shopping-cart"></i><span>Ventas</span></a></li>
+                    <li class="nav-item"><a href="empleados.html" class="nav-link"><i class="fas fa-users"></i><span>Empleados</span></a></li>
+                    <li class="nav-item"><a href="facturacion.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Facturación</span></a></li>
+                    <li class="nav-item"><a href="inventario.html" class="nav-link"><i class="fas fa-box-open"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a href="clientes.html" class="nav-link"><i class="fas fa-handshake"></i><span>Clientes</span></a></li>
+                    <li class="nav-item"><a href="proveedores.html" class="nav-link"><i class="fas fa-truck"></i><span>Proveedores</span></a></li>
+                    <li class="nav-item"><a href="reportes.html" class="nav-link"><i class="fas fa-chart-line"></i><span>Reportes</span></a></li>
+                    <li class="nav-item"><a href="calendario.html" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Calendario</span></a></li>
+                    <li class="nav-item"><a href="configuracion.html" class="nav-link"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>Gestión de Ventas</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="window.open('clientes.html', '_blank')" title="Abrir gestión de clientes">
+                        <i class="fas fa-users"></i> Gestionar Clientes
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshInventory()" title="Actualizar productos y clientes desde datos guardados">
+                        <i class="fas fa-sync-alt"></i> Actualizar Datos
+                    </button>
+                    <button class="btn btn-primary" onclick="openNewSaleModal()">
+                        <i class="fas fa-plus"></i> Nueva Venta
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon sales">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-value" id="totalSales">248</div>
+                    <div class="stat-label">Ventas Realizadas</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +12% vs mes anterior
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-value" id="totalRevenue">$158,420</div>
+                    <div class="stat-label">Ingresos Totales</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i> +18% vs mes anterior
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon products">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-value" id="availableProducts">0</div>
+                    <div class="stat-label">Productos Disponibles</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check-circle"></i> Listos para venta
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value" id="pendingSales">23</div>
+                    <div class="stat-label">Ventas Pendientes</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i> -5% vs mes anterior
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid">
+                <!-- Sales Form Section -->
+                <div class="sales-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nueva Venta
+                    </h2>
+                    
+                    <form id="salesForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="cliente">Cliente</label>
+                                <select id="cliente" class="form-select" required>
+                                    <option value="">Seleccionar cliente</option>
+                                    <!-- Los clientes se cargarán dinámicamente desde localStorage -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="fechaVenta">Fecha de Venta</label>
+                                <input type="date" id="fechaVenta" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Productos</label>
+                            <div id="productsList">
+                                <div class="product-item">
+                                    <div class="product-row">
+                                        <select class="form-select" name="producto" required>
+                                            <option value="">Seleccionar producto</option>
+                                            <option value="cartera-elegante" data-price="85.50">Cartera Elegante - $85.50</option>
+                                            <option value="collar-perlas" data-price="125.00">Collar de Perlas - $125.00</option>
+                                            <option value="vestido-verano" data-price="95.75">Vestido de Verano - $95.75</option>
+                                            <option value="camisa-formal" data-price="68.90">Camisa Formal - $68.90</option>
+                                            <option value="perfume-dama" data-price="150.00">Perfume de Dama - $150.00</option>
+                                        </select>
+                                        <input type="number" class="form-input" name="cantidad" placeholder="Cantidad" min="1" required>
+                                        <input type="number" class="form-input" name="precio" placeholder="Precio" step="0.01" readonly>
+                                        <div class="product-total">$0.00</div>
+                                        <button type="button" class="btn btn-danger" onclick="removeProduct(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="addProduct()">
+                                <i class="fas fa-plus"></i> Agregar Producto
+                            </button>
+                        </div>
+
+                        <div class="total-section">
+                            <div class="total-row">
+                                <span class="total-label">Subtotal:</span>
+                                <span class="total-value" id="subtotal">$0.00</span>
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">Descuento (%):</span>
+                                <input type="number" id="descuento" class="form-input" placeholder="0" min="0" max="100" style="width: 100px; display: inline-block;">
+                            </div>
+                            <div class="total-row">
+                                <span class="total-label">IVA (%):</span>
+                                <input type="number" id="ivaPercentage" class="form-input" placeholder="0" min="0" max="100" style="width: 100px; display: inline-block;">
+                                <span class="total-value" id="itbis">$0.00</span>
+                            </div>
+                            <div class="total-row final-total">
+                                <span class="total-label">Total a Pagar:</span>
+                                <span class="total-value" id="totalFinal">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="metodoPago">Método de Pago</label>
+                            <select id="metodoPago" class="form-select" required>
+                                <option value="">Seleccionar método</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                                <option value="transferencia">Transferencia Bancaria</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="notas">Notas adicionales</label>
+                            <textarea id="notas" class="form-input" rows="3" placeholder="Comentarios sobre la venta..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success" style="width: 100%;">
+                            <i class="fas fa-save"></i> Procesar Venta
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sales Registry Section -->
+            <div class="sales-registry">
+                <h2 class="section-title">
+                    <i class="fas fa-table"></i>
+                    Registro de Todas las Ventas
+                </h2>
+                
+                <!-- Filter Controls -->
+                <div class="filter-controls" style="margin-bottom: 20px;">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <input type="text" id="searchSales" class="filter-input" placeholder="Buscar por cliente o ID...">
+                            <button class="btn btn-secondary" onclick="searchSalesRegistry()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <div class="filter-group">
+                            <select id="statusFilter" class="filter-select" onchange="filterSalesRegistry()">
+                                <option value="">Todos los estados</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <input type="date" id="dateFilter" class="filter-input" onchange="filterSalesRegistry()">
+                        </div>
+                        <div class="filter-group">
+                            <button class="btn btn-secondary" onclick="clearSalesFilters()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                            <button class="btn btn-primary" onclick="exportSalesRegistry()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sales Table -->
+                <div class="table-container">
+                    <table class="sales-table">
+                        <thead>
+                            <tr>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Productos</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <!-- Las ventas se cargarán dinámicamente aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        <span id="paginationInfo">Mostrando 1-10 de 25 ventas</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-secondary" id="prevPage" onclick="previousPage()">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="currentPage">Página 1 de 3</span>
+                        <button class="btn btn-secondary" id="nextPage" onclick="nextPage()">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Análisis de Ventas
+                </h2>
+                
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3 style="color: #ffffff; margin-bottom: 15px;">Ventas por Día</h3>
+                        <canvas id="salesChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 style="color: #ffffff; margin-bottom: 15px;">Productos Más Vendidos</h3>
+                        <canvas id="productsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Función para cargar clientes del localStorage
+        function loadClientsData() {
+            const savedData = localStorage.getItem('clientsData');
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (error) {
+                    console.error('Error al cargar datos de clientes:', error);
+                    return [];
+                }
+            }
+            return [];
+        }
+
+        // Función para actualizar el select de clientes
+        function updateClientSelect() {
+            const clientSelect = document.getElementById('cliente');
+            const clientsData = loadClientsData();
+            
+            // Limpiar opciones existentes excepto la primera
+            clientSelect.innerHTML = '<option value="">Seleccionar cliente</option>';
+            
+            // Agregar clientes activos
+            const activeClients = clientsData.filter(client => client.status === 'Activo');
+            
+            if (activeClients.length === 0) {
+                clientSelect.innerHTML += '<option value="" disabled>No hay clientes activos disponibles</option>';
+                return;
+            }
+            
+            activeClients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.id;
+                option.textContent = client.name;
+                option.setAttribute('data-email', client.email);
+                option.setAttribute('data-phone', client.phone);
+                option.setAttribute('data-category', client.category);
+                clientSelect.appendChild(option);
+            });
+            
+            // Agregar event listener para mostrar info del cliente
+            clientSelect.addEventListener('change', function() {
+                showClientInfo(this.value);
+            });
+        }
+
+        // Función para mostrar información del cliente seleccionado
+        function showClientInfo(clientId) {
+            const clientInfoDiv = document.getElementById('clientInfo');
+            if (!clientInfoDiv) {
+                // Crear div de información si no existe
+                const infoDiv = document.createElement('div');
+                infoDiv.id = 'clientInfo';
+                infoDiv.style.cssText = `
+                    margin-top: 10px;
+                    padding: 10px;
+                    background: rgba(99, 102, 241, 0.1);
+                    border: 1px solid rgba(99, 102, 241, 0.3);
+                    border-radius: 8px;
+                    color: #cbd5e1;
+                    font-size: 0.9rem;
+                    display: none;
+                `;
+                document.getElementById('cliente').parentNode.appendChild(infoDiv);
+            }
+            
+            const clientInfo = document.getElementById('clientInfo');
+            
+            if (!clientId) {
+                clientInfo.style.display = 'none';
+                return;
+            }
+            
+            const client = getClientInfo(clientId);
+            if (client) {
+                clientInfo.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem;">
+                            ${client.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${client.name}</div>
+                            <div style="color: #94a3b8; font-size: 0.8rem;">${client.category} • ${client.purchaseCount} compras</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem;">
+                        <div><i class="fas fa-envelope" style="margin-right: 5px;"></i>${client.email}</div>
+                        <div><i class="fas fa-phone" style="margin-right: 5px;"></i>${client.phone}</div>
+                    </div>
+                `;
+                clientInfo.style.display = 'block';
+            } else {
+                clientInfo.style.display = 'none';
+            }
+        }
+
+        // Función para obtener información del cliente seleccionado
+        function getClientInfo(clientId) {
+            const clientsData = loadClientsData();
+            return clientsData.find(client => client.id === clientId) || null;
+        }
+
+        // Función para actualizar inventario desde localStorage
+        function refreshInventory() {
+            updateClientSelect();
+            loadInventoryData();
+            updateProductSelect();
+            alert('Inventario y clientes actualizados desde los datos guardados');
+        }
+
+        // Función para cargar ventas del localStorage
+        function loadSalesData() {
+            const savedData = localStorage.getItem('salesData');
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (error) {
+                    console.error('Error al cargar datos de ventas:', error);
+                    return getDefaultSalesData();
+                }
+            }
+            return getDefaultSalesData();
+        }
+
+        // Función para guardar ventas en localStorage
+        function saveSalesData() {
+            try {
+                localStorage.setItem('salesData', JSON.stringify(salesData));
+            } catch (error) {
+                console.error('Error al guardar datos de ventas:', error);
+            }
+        }
+
+        // Datos de ejemplo predeterminados para ventas
+        function getDefaultSalesData() {
+            return [
+                { id: 'VT-2025-001', cliente: 'María González', productos: ['Cartera Elegante', 'Collar de Perlas'], total: 245.80, fecha: '2025-08-19', metodo: 'tarjeta' },
+                { id: 'VT-2025-002', cliente: 'Ana Rodríguez', productos: ['Vestido de Verano', 'Perfume'], total: 195.75, fecha: '2025-08-19', metodo: 'efectivo' },
+                { id: 'VT-2025-003', cliente: 'Lucía Martínez', productos: ['Camisa Formal'], total: 68.90, fecha: '2025-08-18', metodo: 'transferencia' },
+                { id: 'VT-2025-004', cliente: 'Sofía López', productos: ['Cartera', 'Perfume', 'Vestido'], total: 310.50, fecha: '2025-08-18', metodo: 'tarjeta' }
+            ];
+        }
+
+        // Inicializar datos de ventas
+        let salesData = loadSalesData();
+
+        // Productos disponibles con stock
+        let products = {
+            'cartera-elegante': { name: 'Cartera Elegante', price: 85.50, category: 'Carteras', stock: 0, code: 'CAR-001' },
+            'collar-perlas': { name: 'Collar de Perlas', price: 125.00, category: 'Accesorios', stock: 0, code: 'ACC-001' },
+            'vestido-verano': { name: 'Vestido de Verano', price: 95.75, category: 'Ropa de Dama', stock: 0, code: 'RD-001' },
+            'camisa-formal': { name: 'Camisa Formal', price: 68.90, category: 'Ropa de Caballero', stock: 0, code: 'RC-001' },
+            'perfume-dama': { name: 'Perfume de Dama', price: 150.00, category: 'Perfume', stock: 0, code: 'PER-001' }
+        };
+
+        // Función para sincronizar con el inventario
+        function syncWithInventory() {
+            // Intentar obtener datos del inventario desde localStorage
+            const inventoryData = localStorage.getItem('inventoryData');
+            if (inventoryData) {
+                try {
+                    const inventory = JSON.parse(inventoryData);
+                    
+                    // Limpiar productos existentes y cargar todos desde inventario
+                    products = {};
+                    
+                    // Convertir todos los productos del inventario a formato de ventas
+                    inventory.forEach(item => {
+                        // Crear clave única basada en el código
+                        const productKey = item.code.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                        
+                        products[productKey] = {
+                            name: item.name,
+                            price: item.precioVenta,
+                            category: item.category,
+                            stock: item.stock,
+                            code: item.code,
+                            id: item.id
+                        };
+                    });
+                    
+                    updateProductSelects();
+                    updateStats(); // Actualizar estadísticas con productos disponibles
+                } catch (error) {
+                    console.log('Error al sincronizar con inventario:', error);
+                }
+            }
+        }
+
+        // Función para actualizar inventario después de una venta
+        function updateInventoryAfterSale(soldProducts) {
+            const inventoryData = localStorage.getItem('inventoryData');
+            if (inventoryData) {
+                try {
+                    let inventory = JSON.parse(inventoryData);
+                    
+                    // Reducir stock en inventario de manera dinámica
+                    soldProducts.forEach(soldProduct => {
+                        // Buscar producto en inventario usando el código almacenado en products
+                        const productInfo = products[soldProduct.producto];
+                        if (productInfo && productInfo.code) {
+                            const inventoryItem = inventory.find(item => item.code === productInfo.code);
+                            if (inventoryItem) {
+                                inventoryItem.stock = Math.max(0, inventoryItem.stock - soldProduct.cantidad);
+                                inventoryItem.status = inventoryItem.stock > 0 ? 'in-stock' : 'sold';
+                                inventoryItem.lastUpdate = new Date().toISOString().split('T')[0];
+                                
+                                // Actualizar también en productos locales
+                                products[soldProduct.producto].stock = inventoryItem.stock;
+                            }
+                        }
+                    });
+                    
+                    // Guardar inventario actualizado
+                    localStorage.setItem('inventoryData', JSON.stringify(inventory));
+                    updateProductSelects();
+                    
+                } catch (error) {
+                    console.log('Error al actualizar inventario:', error);
+                }
+            }
+        }
+
+        // Función para actualizar cliente después de una venta
+        function updateClientAfterSale(clientId, totalVenta) {
+            const clientsData = loadClientsData();
+            const clientIndex = clientsData.findIndex(c => c.id === clientId);
+            
+            if (clientIndex !== -1) {
+                // Actualizar estadísticas del cliente
+                clientsData[clientIndex].totalPurchases += totalVenta;
+                clientsData[clientIndex].purchaseCount += 1;
+                
+                // Actualizar categoría basada en el total de compras
+                const totalPurchases = clientsData[clientIndex].totalPurchases;
+                if (totalPurchases >= 1000) {
+                    clientsData[clientIndex].category = 'VIP';
+                } else if (totalPurchases >= 300) {
+                    clientsData[clientIndex].category = 'Regular';
+                }
+                
+                // Guardar cambios en localStorage
+                try {
+                    localStorage.setItem('clientsData', JSON.stringify(clientsData));
+                } catch (error) {
+                    console.error('Error al actualizar datos del cliente:', error);
+                }
+            }
+        }
+
+        // Función para actualizar las opciones de productos en los selects
+        function updateProductSelects() {
+            const productSelects = document.querySelectorAll('select[name="producto"]');
+            productSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Seleccionar producto</option>';
+                
+                // Filtrar solo productos con stock disponible
+                const availableProducts = Object.keys(products).filter(key => {
+                    return products[key].stock > 0;
+                });
+                
+                if (availableProducts.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay productos en stock';
+                    option.disabled = true;
+                    option.style.color = '#64748b';
+                    select.appendChild(option);
+                } else {
+                    availableProducts.forEach(key => {
+                        const product = products[key];
+                        
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.stock})`;
+                        option.dataset.price = product.price;
+                        option.dataset.stock = product.stock;
+                        
+                        select.appendChild(option);
+                    });
+                }
+                
+                // Restaurar valor seleccionado si existe y aún tiene stock
+                if (currentValue && products[currentValue] && products[currentValue].stock > 0) {
+                    select.value = currentValue;
+                } else if (currentValue && products[currentValue] && products[currentValue].stock <= 0) {
+                    // Si el producto seleccionado ya no tiene stock, mostrar notificación
+                    showNotification(`El producto "${products[currentValue].name}" ya no tiene stock disponible`, 'error');
+                }
+            });
+        }
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDate();
+            updateClientSelect(); // Cargar clientes desde localStorage
+            syncWithInventory(); // Sincronizar con inventario al cargar
+            setupEventListeners();
+            initializeCharts();
+            updateTotals();
+            updateSalesRegistry(); // Cargar tabla de ventas
+            
+            // Escuchar cambios en localStorage (para sincronización automática)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'inventoryData') {
+                    syncWithInventory();
+                    showNotification('Inventario actualizado automáticamente', 'success');
+                } else if (e.key === 'clientsData') {
+                    updateClientSelect();
+                    showNotification('Clientes actualizados automáticamente', 'success');
+                }
+            });
+            
+            // Verificar cambios en inventario cada 3 segundos (fallback)
+            setInterval(function() {
+                const lastCheck = localStorage.getItem('lastInventoryCheck');
+                const currentTime = Date.now().toString();
+                
+                if (lastCheck !== currentTime) {
+                    syncWithInventory();
+                }
+            }, 3000);
+        });
+
+        // Función para actualizar inventario manualmente
+        function refreshInventory() {
+            syncWithInventory();
+            showNotification('Inventario actualizado correctamente', 'success');
+        }
+
+        // Establecer fecha por defecto
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaVenta').value = today;
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Formulario de ventas
+            document.getElementById('salesForm').addEventListener('submit', handleSaleSubmit);
+            
+            // Event listener para descuento e IVA
+            document.getElementById('descuento').addEventListener('input', updateTotals);
+            document.getElementById('ivaPercentage').addEventListener('input', updateTotals);
+            
+            // Event listeners para productos
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'producto') {
+                    updateProductPrice(e.target);
+                }
+                if (e.target.name === 'cantidad' || e.target.name === 'precio') {
+                    updateProductTotal(e.target);
+                }
+            });
+        }
+
+        // Agregar nuevo producto
+        function addProduct() {
+            const productsList = document.getElementById('productsList');
+            const productItem = document.createElement('div');
+            productItem.className = 'product-item';
+            
+            productItem.innerHTML = `
+                <div class="product-row">
+                    <select class="form-select" name="producto" required>
+                        <option value="">Seleccionar producto</option>
+                    </select>
+                    <input type="number" class="form-input" name="cantidad" placeholder="Cantidad" min="1" required>
+                    <input type="number" class="form-input" name="precio" placeholder="Precio" step="0.01" readonly>
+                    <div class="product-total">$0.00</div>
+                    <button type="button" class="btn btn-danger" onclick="removeProduct(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            productsList.appendChild(productItem);
+            
+            // Actualizar las opciones del nuevo select
+            updateProductSelects();
+        }
+
+        // Remover producto
+        function removeProduct(button) {
+            const productItem = button.closest('.product-item');
+            productItem.remove();
+            updateTotals();
+        }
+
+        // Actualizar precio del producto
+        function updateProductPrice(selectElement) {
+            const productRow = selectElement.closest('.product-row');
+            const priceInput = productRow.querySelector('input[name="precio"]');
+            const cantidadInput = productRow.querySelector('input[name="cantidad"]');
+            const selectedOption = selectElement.selectedOptions[0];
+            
+            if (selectedOption && selectedOption.dataset.price) {
+                priceInput.value = selectedOption.dataset.price;
+                
+                // Establecer cantidad máxima basada en stock
+                const stock = parseInt(selectedOption.dataset.stock) || 0;
+                
+                if (stock > 0) {
+                    cantidadInput.max = stock;
+                    cantidadInput.min = 1;
+                    cantidadInput.disabled = false;
+                    cantidadInput.title = `Stock disponible: ${stock}`;
+                    
+                    // Si la cantidad actual excede el stock, ajustarla
+                    if (parseInt(cantidadInput.value) > stock) {
+                        cantidadInput.value = stock;
+                    }
+                } else {
+                    // Sin stock disponible
+                    cantidadInput.max = 1;
+                    cantidadInput.min = 1;
+                    cantidadInput.value = '';
+                    cantidadInput.disabled = true;
+                    cantidadInput.title = 'Sin stock disponible';
+                }
+                
+                updateProductTotal(selectElement);
+            } else {
+                priceInput.value = '';
+                cantidadInput.max = '';
+                cantidadInput.min = 1;
+                cantidadInput.disabled = false;
+                cantidadInput.title = '';
+                updateProductTotal(selectElement);
+            }
+        }
+
+        // Actualizar total del producto
+        function updateProductTotal(element) {
+            const productRow = element.closest('.product-row');
+            const cantidad = productRow.querySelector('input[name="cantidad"]').value || 0;
+            const precio = productRow.querySelector('input[name="precio"]').value || 0;
+            const totalElement = productRow.querySelector('.product-total');
+            
+            const total = parseFloat(cantidad) * parseFloat(precio);
+            totalElement.textContent = '$' + total.toFixed(2);
+            
+            updateTotals();
+        }
+
+        // Actualizar totales generales
+        function updateTotals() {
+            const productTotals = document.querySelectorAll('.product-total');
+            let subtotal = 0;
+            
+            productTotals.forEach(totalElement => {
+                const value = parseFloat(totalElement.textContent.replace('$', '')) || 0;
+                subtotal += value;
+            });
+            
+            const descuentoPorcentaje = parseFloat(document.getElementById('descuento').value) || 0;
+            const ivaPorcentaje = parseFloat(document.getElementById('ivaPercentage').value) || 0;
+            
+            const descuentoMonto = subtotal * (descuentoPorcentaje / 100);
+            const subtotalConDescuento = subtotal - descuentoMonto;
+            
+            // Aplicar IVA solo si es mayor que 0
+            const iva = ivaPorcentaje > 0 ? subtotalConDescuento * (ivaPorcentaje / 100) : 0;
+            const total = subtotalConDescuento + iva;
+            
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('itbis').textContent = '$' + iva.toFixed(2);
+            document.getElementById('totalFinal').textContent = '$' + total.toFixed(2);
+        }
+
+        // Manejar envío del formulario
+        function handleSaleSubmit(e) {
+            e.preventDefault();
+            
+            // Obtener valores directamente de los elementos del formulario
+            const cliente = document.getElementById('cliente').value;
+            const fecha = document.getElementById('fechaVenta').value;
+            const metodoPago = document.getElementById('metodoPago').value;
+            const notas = document.getElementById('notas').value;
+            
+            // Validar campos requeridos
+            if (!cliente) {
+                showNotification('Por favor seleccione un cliente', 'error');
+                return;
+            }
+            
+            if (!fecha) {
+                showNotification('Por favor seleccione una fecha', 'error');
+                return;
+            }
+            
+            if (!metodoPago) {
+                showNotification('Por favor seleccione un método de pago', 'error');
+                return;
+            }
+            
+            // Recopilar productos
+            const productRows = document.querySelectorAll('.product-row');
+            const productos = [];
+            let valid = true;
+            
+            productRows.forEach(row => {
+                const producto = row.querySelector('select[name="producto"]').value;
+                const cantidad = row.querySelector('input[name="cantidad"]').value;
+                const precio = row.querySelector('input[name="precio"]').value;
+                
+                if (producto && cantidad && precio) {
+                    productos.push({
+                        producto: producto,
+                        cantidad: parseInt(cantidad),
+                        precio: parseFloat(precio),
+                        total: parseInt(cantidad) * parseFloat(precio)
+                    });
+                } else if (producto || cantidad || precio) {
+                    valid = false;
+                }
+            });
+            
+            if (!valid || productos.length === 0) {
+                showNotification('Por favor complete todos los campos de productos', 'error');
+                return;
+            }
+            
+            // Validar stock disponible
+            let stockError = false;
+            productos.forEach(p => {
+                const product = products[p.producto];
+                if (product && p.cantidad > product.stock) {
+                    showNotification(`Stock insuficiente para ${product.name}. Stock disponible: ${product.stock}`, 'error');
+                    stockError = true;
+                }
+            });
+            
+            if (stockError) {
+                return;
+            }
+            
+            // Crear nueva venta
+            const newSale = {
+                id: generateSaleId(),
+                cliente: getClienteName(cliente),
+                productos: productos.map(p => products[p.producto]?.name || p.producto),
+                total: parseFloat(document.getElementById('totalFinal').textContent.replace('$', '')),
+                fecha: fecha,
+                metodo: metodoPago,
+                notas: notas,
+                estado: 'Completada',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Agregar a los datos
+            salesData.unshift(newSale);
+            
+            // Guardar ventas en localStorage
+            saveSalesData();
+            
+            // Actualizar inventario después de la venta
+            updateInventoryAfterSale(productos);
+            
+            // Actualizar estadísticas del cliente
+            updateClientAfterSale(cliente, parseFloat(document.getElementById('totalFinal').textContent.replace('$', '')));
+            
+            // Limpiar formulario
+            e.target.reset();
+            setDefaultDate();
+            document.getElementById('productsList').innerHTML = `
+                <div class="product-item">
+                    <div class="product-row">
+                        <select class="form-select" name="producto" required>
+                            <option value="">Seleccionar producto</option>
+                        </select>
+                        <input type="number" class="form-input" name="cantidad" placeholder="Cantidad" min="1" required>
+                        <input type="number" class="form-input" name="precio" placeholder="Precio" step="0.01" readonly>
+                        <div class="product-total">$0.00</div>
+                        <button type="button" class="btn btn-danger" onclick="removeProduct(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Actualizar selects de productos con stock actualizado
+            updateProductSelects();
+            updateSalesRegistry();
+            updateStats();
+            showNotification('Venta registrada exitosamente', 'success');
+        }
+
+        // Generar ID de venta
+        function generateSaleId() {
+            const year = new Date().getFullYear();
+            const number = salesData.length + 1;
+            return `VT-${year}-${number.toString().padStart(3, '0')}`;
+        }
+
+        // Obtener nombre del cliente
+        function getClienteName(clienteId) {
+            // Si no hay clienteId, retornar "Cliente no especificado"
+            if (!clienteId || clienteId === '') {
+                return 'Cliente no especificado';
+            }
+            
+            // Intentar obtener el cliente de los datos guardados
+            const clientInfo = getClientInfo(clienteId);
+            if (clientInfo && clientInfo.name) {
+                return clientInfo.name;
+            }
+            
+            // Fallback al método anterior si no se encuentra en los datos
+            const clienteSelect = document.getElementById('cliente');
+            const selectedOption = clienteSelect.querySelector(`option[value="${clienteId}"]`);
+            if (selectedOption && selectedOption.textContent !== 'Seleccionar cliente') {
+                return selectedOption.textContent;
+            }
+            
+            // Si no se encuentra, retornar el ID o un valor por defecto
+            return clienteId || 'Cliente desconocido';
+        }
+
+        // Variables de paginación
+        let currentPageNumber = 1;
+        let itemsPerPage = 10;
+        let filteredSalesData = [];
+
+        // Renderizar tabla de ventas
+        function updateSalesRegistry() {
+            filteredSalesData = [...salesData];
+            renderSalesTable();
+            updatePagination();
+        }
+
+        // Renderizar tabla con paginación
+        function renderSalesTable() {
+            const tableBody = document.getElementById('salesTableBody');
+            tableBody.innerHTML = '';
+            
+            if (filteredSalesData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
+                            <i class="fas fa-receipt" style="font-size: 2rem; margin-bottom: 15px; display: block;"></i>
+                            No se encontraron ventas
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const startIndex = (currentPageNumber - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredSalesData.length);
+            const currentPageData = filteredSalesData.slice(startIndex, endIndex);
+            
+            currentPageData.forEach(sale => {
+                const row = document.createElement('tr');
+                const statusClass = getStatusClass(sale.estado || 'Completada');
+                const productsList = Array.isArray(sale.productos) ? sale.productos.join(', ') : sale.productos;
+                const totalQuantity = Array.isArray(sale.cantidades) ? sale.cantidades.reduce((sum, q) => sum + q, 0) : 1;
+                
+                row.innerHTML = `
+                    <td style="color: #6366f1; font-weight: 600;">#${sale.id}</td>
+                    <td>${formatDate(sale.fecha)}</td>
+                    <td style="font-weight: 500;">${sale.cliente}</td>
+                    <td title="${productsList}">${truncateText(productsList, 30)}</td>
+                    <td style="text-align: center;">${totalQuantity}</td>
+                    <td style="color: #10b981; font-weight: 700;">$${sale.total.toFixed(2)}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">
+                            ${sale.estado || 'Completada'}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-secondary btn-sm" onclick="viewSaleDetails('${sale.id}')" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="printSaleReceipt('${sale.id}')" title="Imprimir">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteSale('${sale.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Funciones auxiliares
+        function getStatusClass(status) {
+            switch(status.toLowerCase()) {
+                case 'completada': return 'status-completed';
+                case 'pendiente': return 'status-pending';
+                case 'cancelada': return 'status-cancelled';
+                default: return 'status-completed';
+            }
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // Funciones de filtrado y búsqueda
+        function searchSalesRegistry() {
+            const searchTerm = document.getElementById('searchSales').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            filteredSalesData = salesData.filter(sale => {
+                const matchesSearch = !searchTerm || 
+                    sale.cliente.toLowerCase().includes(searchTerm) ||
+                    sale.id.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = !statusFilter || 
+                    (sale.estado || 'Completada') === statusFilter;
+                
+                const matchesDate = !dateFilter || sale.fecha === dateFilter;
+                
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+            
+            currentPageNumber = 1;
+            renderSalesTable();
+            updatePagination();
+        }
+
+        function filterSalesRegistry() {
+            searchSalesRegistry();
+        }
+
+        function clearSalesFilters() {
+            document.getElementById('searchSales').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            filteredSalesData = [...salesData];
+            currentPageNumber = 1;
+            renderSalesTable();
+            updatePagination();
+        }
+
+        // Funciones de paginación
+        function updatePagination() {
+            const totalItems = filteredSalesData.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = totalItems > 0 ? (currentPageNumber - 1) * itemsPerPage + 1 : 0;
+            const endItem = Math.min(currentPageNumber * itemsPerPage, totalItems);
+            
+            document.getElementById('paginationInfo').textContent = 
+                `Mostrando ${startItem}-${endItem} de ${totalItems} ventas`;
+            
+            document.getElementById('currentPage').textContent = 
+                `Página ${currentPageNumber} de ${totalPages}`;
+            
+            document.getElementById('prevPage').disabled = currentPageNumber <= 1;
+            document.getElementById('nextPage').disabled = currentPageNumber >= totalPages;
+        }
+
+        function previousPage() {
+            if (currentPageNumber > 1) {
+                currentPageNumber--;
+                renderSalesTable();
+                updatePagination();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredSalesData.length / itemsPerPage);
+            if (currentPageNumber < totalPages) {
+                currentPageNumber++;
+                renderSalesTable();
+                updatePagination();
+            }
+        }
+
+        // Funciones de acciones
+        function viewSaleDetails(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (sale) {
+                alert(`Detalles de venta #${sale.id}:\n\nCliente: ${sale.cliente}\nFecha: ${formatDate(sale.fecha)}\nProductos: ${Array.isArray(sale.productos) ? sale.productos.join(', ') : sale.productos}\nTotal: $${sale.total.toFixed(2)}\nEstado: ${sale.estado || 'Completada'}`);
+            }
+        }
+
+        function printSaleReceipt(saleId) {
+            const sale = salesData.find(s => s.id === saleId);
+            if (sale) {
+                // Abrir ventana de impresión con el recibo
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Recibo de Venta #${sale.id}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .header { text-align: center; margin-bottom: 20px; }
+                            .details { margin-bottom: 20px; }
+                            .total { font-weight: bold; font-size: 1.2em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h2>Ash-Ling</h2>
+                            <h3>Recibo de Venta #${sale.id}</h3>
+                        </div>
+                        <div class="details">
+                            <p><strong>Cliente:</strong> ${sale.cliente}</p>
+                            <p><strong>Fecha:</strong> ${formatDate(sale.fecha)}</p>
+                            <p><strong>Productos:</strong> ${Array.isArray(sale.productos) ? sale.productos.join(', ') : sale.productos}</p>
+                            <p><strong>Estado:</strong> ${sale.estado || 'Completada'}</p>
+                        </div>
+                        <div class="total">
+                            <p>Total: $${sale.total.toFixed(2)}</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
+
+        function deleteSale(saleId) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta venta? Esta acción no se puede deshacer.')) {
+                const index = salesData.findIndex(s => s.id === saleId);
+                if (index !== -1) {
+                    salesData.splice(index, 1);
+                    saveSalesData();
+                    updateSalesRegistry();
+                    updateStats();
+                    showNotification('Venta eliminada exitosamente', 'success');
+                }
+            }
+        }
+
+        function exportSalesRegistry() {
+            if (filteredSalesData.length === 0) {
+                alert('No hay ventas para exportar');
+                return;
+            }
+            
+            const headers = ['ID', 'Fecha', 'Cliente', 'Productos', 'Cantidad Total', 'Total', 'Estado'];
+            const csvData = filteredSalesData.map(sale => [
+                sale.id,
+                sale.fecha,
+                sale.cliente,
+                Array.isArray(sale.productos) ? sale.productos.join('; ') : sale.productos,
+                Array.isArray(sale.cantidades) ? sale.cantidades.reduce((sum, q) => sum + q, 0) : 1,
+                sale.total.toFixed(2),
+                sale.estado || 'Completada'
+            ]);
+            
+            const csvContent = [headers.join(','), ...csvData.map(row => row.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `ventas_ash_ling_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showNotification(`Se exportaron ${filteredSalesData.length} ventas exitosamente`, 'success');
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            const totalSales = salesData.length;
+            const totalRevenue = salesData.reduce((sum, sale) => sum + sale.total, 0);
+            
+            // Calcular productos disponibles (con stock > 0)
+            const availableProducts = Object.keys(products).filter(key => products[key].stock > 0).length;
+            
+            document.getElementById('totalSales').textContent = totalSales;
+            document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString();
+            document.getElementById('availableProducts').textContent = availableProducts;
+        }
+
+        // Formatear fecha
+        function formatDate(dateString) {
+            if (!dateString || dateString === '' || dateString === null || dateString === undefined) {
+                return 'Fecha no válida';
+            }
+            
+            try {
+                // Si la fecha ya tiene formato de fecha completa, usarla directamente
+                if (dateString.includes('T') || dateString.includes(':')) {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) {
+                        return 'Fecha no válida';
+                    }
+                    return date.toLocaleDateString('es-ES');
+                }
+                
+                // Si es solo fecha (YYYY-MM-DD), agregar tiempo para evitar problemas de zona horaria
+                const date = new Date(dateString + 'T12:00:00');
+                if (isNaN(date.getTime())) {
+                    return 'Fecha no válida';
+                }
+                return date.toLocaleDateString('es-ES');
+            } catch (error) {
+                console.error('Error al formatear fecha:', error);
+                return 'Fecha no válida';
+            }
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Inicializar gráficos
+        function initializeCharts() {
+            // Gráfico de ventas por día
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Ventas ($)',
+                        data: [1200, 1900, 3000, 2500, 2200, 3200, 2800],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de productos más vendidos
+            const productsCtx = document.getElementById('productsChart').getContext('2d');
+            new Chart(productsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Carteras', 'Perfumes', 'Vestidos', 'Accesorios', 'Camisas'],
+                    datasets: [{
+                        data: [35, 25, 20, 15, 5],
+                        backgroundColor: [
+                            '#6366f1',
+                            '#8b5cf6',
+                            '#ec4899',
+                            '#10b981',
+                            '#f59e0b'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script> 
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvAr526Zdh9NFiRv7Vz4hBRQe9qq5lyoQ",
+            authDomain: "ash-ling-sistema.firebaseapp.com",
+            projectId: "ash-ling-sistema",
+            storageBucket: "ash-ling-sistema.firebasestorage.app",
+            messagingSenderId: "643413580483",
+            appId: "1:643413580483:web:d9433150520f96c6ff6076"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>

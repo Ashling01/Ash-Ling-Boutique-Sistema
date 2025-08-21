@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Ash-Ling Sistema Empresarial</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; color: #333; overflow-x: hidden; }
+        .container { display: flex; min-height: 100vh; position: relative; }
+        .container::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        .sidebar { width: 300px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.1); padding: 0; transition: all 0.3s ease; position: relative; z-index: 10; box-shadow: 0 0 50px rgba(0, 0, 0, 0.3), inset 1px 0 0 rgba(255, 255, 255, 0.1); }
+        .logo-section { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+        .logo-section img { width: 70px; height: 70px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+        .logo-section h2 { color: #ffffff; font-weight: 800; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .logo-section p { color: #94a3b8; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.5px; }
+        .nav-menu { list-style: none; padding: 0 15px; }
+        .nav-item { margin-bottom: 5px; }
+        .nav-link { display: flex; align-items: center; padding: 15px 20px; color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 500; font-size: 0.95rem; position: relative; overflow: hidden; }
+        .nav-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .nav-link:hover::before { left: 100%; }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; transform: translateX(8px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        .nav-link i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; position: relative; z-index: 5; background: rgba(255, 255, 255, 0.02); }
+        .header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 35px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { color: #ffffff; font-weight: 800; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); background: linear-gradient(135deg, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-actions { display: flex; gap: 15px; }
+        
+        /* Settings Cards */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .settings-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
+        .settings-card:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .card-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: white; }
+        .card-icon.company { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .card-icon.backup { background: linear-gradient(135deg, #10b981, #059669); }
+        .card-icon.security { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .card-icon.system { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .card-title { color: white; font-size: 1.3rem; font-weight: 700; }
+        .card-description { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5; }
+        
+        /* Form Elements */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+        .form-input, .form-select { width: 100%; padding: 12px 15px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; background: rgba(30, 41, 59, 0.8); color: white; font-size: 0.95rem; transition: all 0.3s ease; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* Switch */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(148, 163, 184, 0.3); transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #6366f1; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border: none; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
+        .btn-full { width: 100%; justify-content: center; }
+        
+        /* Alert */
+        .alert { padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; }
+        .alert-warning { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; }
+        .alert-info { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; }
+        
+        /* Setting Item */
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 { color: white; font-weight: 600; margin-bottom: 5px; }
+        .setting-info p { color: #94a3b8; font-size: 0.9rem; }
+        
+        /* Responsive */
+        @media (max-width: 768px) { 
+            .sidebar { width: 70px; } 
+            .logo-section h2, .logo-section p, .nav-link span { display: none; } 
+            .main-content { padding: 15px; } 
+            .header { padding: 20px; flex-direction: column; gap: 15px; text-align: center; } 
+            .header-actions { flex-direction: column; width: 100%; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <img src="logo/logo.png" alt="Ash-Ling Logo">
+                <h2>Ash-Ling</h2>
+                <p>Control Empresarial</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a></li>
+                    <li class="nav-item"><a href="ventas.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Ventas</span></a></li>
+                    <li class="nav-item"><a href="empleados.html" class="nav-link"><i class="fas fa-users"></i><span>Empleados</span></a></li>
+                    <li class="nav-item"><a href="facturacion.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i><span>Facturación</span></a></li>
+                    <li class="nav-item"><a href="inventario.html" class="nav-link"><i class="fas fa-box-open"></i><span>Inventario</span></a></li>
+                    <li class="nav-item"><a href="clientes.html" class="nav-link"><i class="fas fa-handshake"></i><span>Clientes</span></a></li>
+                    <li class="nav-item"><a href="proveedores.html" class="nav-link"><i class="fas fa-truck"></i><span>Proveedores</span></a></li>
+                    <li class="nav-item"><a href="reportes.html" class="nav-link"><i class="fas fa-chart-line"></i><span>Reportes</span></a></li>
+                    <li class="nav-item"><a href="calendario.html" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Calendario</span></a></li>
+                    <li class="nav-item"><a href="configuracion.html" class="nav-link active"><i class="fas fa-cog"></i><span>Configuración</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Configuración del Sistema</h1>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="saveAllSettings()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </header>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                Personaliza el sistema según las necesidades de tu empresa. Todos los cambios se guardan automáticamente.
+            </div>
+
+            <div class="settings-grid">
+                <!-- Información de la Empresa -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon company">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="card-title">Información de la Empresa</div>
+                    </div>
+                    <div class="card-description">
+                        Configura los datos básicos de tu empresa que aparecerán en reportes y documentos.
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nombre de la Empresa</label>
+                        <input type="text" class="form-input" id="companyName" value="Ash-Ling" placeholder="Nombre de la empresa">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">RUC/NIT</label>
+                            <input type="text" class="form-input" id="companyRuc" placeholder="Número de identificación">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="companyPhone" placeholder="Teléfono principal">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="companyEmail" placeholder="email@empresa.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" class="form-input" id="companyAddress" placeholder="Dirección completa">
+                    </div>
+                </div>
+
+                <!-- Configuración del Sistema -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon system">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="card-title">Configuración del Sistema</div>
+                    </div>
+                    <div class="card-description">
+                        Personaliza el comportamiento y apariencia del sistema según tus preferencias.
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Tema de la Interfaz</h4>
+                            <p>Selecciona el tema visual del sistema</p>
+                        </div>
+                        <select class="form-select" id="systemTheme" style="width: 150px;">
+                            <option value="dark">Oscuro</option>
+                            <option value="light">Claro</option>
+                            <option value="auto">Automático</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Idioma del Sistema</h4>
+                            <p>Cambia el idioma de la interfaz</p>
+                        </div>
+                        <select class="form-select" id="systemLanguage" style="width: 150px;">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Guardado Automático</h4>
+                            <p>Guardar cambios automáticamente</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoSave" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Notificaciones de Sistema</h4>
+                            <p>Mostrar alertas y notificaciones</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="systemNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Configuración de Inventario -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon system">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="card-title">Configuración de Inventario</div>
+                    </div>
+                    <div class="card-description">
+                        Configura alertas y comportamientos relacionados con el inventario.
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Límite de Stock Bajo</label>
+                        <input type="number" class="form-input" id="lowStockLimit" value="10" min="1" max="100">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Alertas de Stock Bajo</h4>
+                            <p>Notificar cuando el stock sea bajo</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="lowStockAlerts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Actualización Automática de Precios</h4>
+                            <p>Ajustar precios según configuración</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoPriceUpdate">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Respaldo y Seguridad -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="card-icon backup">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="card-title">Respaldo y Seguridad</div>
+                    </div>
+                    <div class="card-description">
+                        Protege tus datos con respaldos automáticos y configuraciones de seguridad.
+                    </div>
+                    
+                    <div class="alert alert-success" id="backupStatus">
+                        <i class="fas fa-check-circle"></i>
+                        Último respaldo: Hoy a las 08:30 AM
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Respaldo Automático</h4>
+                            <p>Crear respaldos diarios automáticamente</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="autoBackup" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-success btn-full" onclick="createBackup()">
+                            <i class="fas fa-download"></i> Crear Respaldo Manual
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                        <button class="btn btn-warning btn-full" onclick="document.getElementById('restoreFile').click()">
+                            <i class="fas fa-upload"></i> Restaurar desde Respaldo
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-danger btn-full" onclick="resetAllData()">
+                            <i class="fas fa-trash-alt"></i> Resetear Todos los Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Cargar configuraciones guardadas
+        function loadSettings() {
+            try {
+                const settings = JSON.parse(localStorage.getItem('systemSettings') || '{}');
+                
+                // Cargar información de empresa
+                if (settings.companyName) document.getElementById('companyName').value = settings.companyName;
+                if (settings.companyRuc) document.getElementById('companyRuc').value = settings.companyRuc;
+                if (settings.companyPhone) document.getElementById('companyPhone').value = settings.companyPhone;
+                if (settings.companyEmail) document.getElementById('companyEmail').value = settings.companyEmail;
+                if (settings.companyAddress) document.getElementById('companyAddress').value = settings.companyAddress;
+                
+                // Cargar configuraciones del sistema
+                if (settings.systemTheme) document.getElementById('systemTheme').value = settings.systemTheme;
+                if (settings.systemLanguage) document.getElementById('systemLanguage').value = settings.systemLanguage;
+                if (settings.lowStockLimit) document.getElementById('lowStockLimit').value = settings.lowStockLimit;
+                
+                // Cargar switches
+                document.getElementById('autoSave').checked = settings.autoSave !== false;
+                document.getElementById('systemNotifications').checked = settings.systemNotifications !== false;
+                document.getElementById('lowStockAlerts').checked = settings.lowStockAlerts !== false;
+                document.getElementById('autoPriceUpdate').checked = settings.autoPriceUpdate === true;
+                document.getElementById('autoBackup').checked = settings.autoBackup !== false;
+                
+                console.log('Configuraciones cargadas correctamente');
+            } catch (error) {
+                console.error('Error al cargar configuraciones:', error);
+            }
+        }
+
+        // Guardar todas las configuraciones
+        function saveAllSettings() {
+            try {
+                const settings = {
+                    // Información de empresa
+                    companyName: document.getElementById('companyName').value,
+                    companyRuc: document.getElementById('companyRuc').value,
+                    companyPhone: document.getElementById('companyPhone').value,
+                    companyEmail: document.getElementById('companyEmail').value,
+                    companyAddress: document.getElementById('companyAddress').value,
+                    
+                    // Configuraciones del sistema
+                    systemTheme: document.getElementById('systemTheme').value,
+                    systemLanguage: document.getElementById('systemLanguage').value,
+                    lowStockLimit: parseInt(document.getElementById('lowStockLimit').value),
+                    
+                    // Switches
+                    autoSave: document.getElementById('autoSave').checked,
+                    systemNotifications: document.getElementById('systemNotifications').checked,
+                    lowStockAlerts: document.getElementById('lowStockAlerts').checked,
+                    autoPriceUpdate: document.getElementById('autoPriceUpdate').checked,
+                    autoBackup: document.getElementById('autoBackup').checked,
+                    
+                    // Timestamp
+                    lastUpdated: new Date().toISOString()
+                };
+                
+                localStorage.setItem('systemSettings', JSON.stringify(settings));
+                
+                // Mostrar confirmación
+                showNotification('✅ Configuraciones guardadas exitosamente!', 'success');
+                
+                console.log('Configuraciones guardadas:', settings);
+            } catch (error) {
+                console.error('Error al guardar configuraciones:', error);
+                showNotification('❌ Error al guardar configuraciones', 'error');
+            }
+        }
+
+        // Crear respaldo de datos
+        function createBackup() {
+            try {
+                const backupData = {
+                    timestamp: new Date().toISOString(),
+                    version: '1.0',
+                    data: {
+                        inventoryData: JSON.parse(localStorage.getItem('inventoryData') || '[]'),
+                        salesData: JSON.parse(localStorage.getItem('salesData') || '[]'),
+                        clientsData: JSON.parse(localStorage.getItem('clientsData') || '[]'),
+                        calendarEvents: JSON.parse(localStorage.getItem('calendarEvents') || '[]'),
+                        systemSettings: JSON.parse(localStorage.getItem('systemSettings') || '{}')
+                    }
+                };
+                
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ash-ling-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Actualizar estado del respaldo
+                document.getElementById('backupStatus').innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    Último respaldo: ${new Date().toLocaleString()}
+                `;
+                
+                showNotification('✅ Respaldo creado y descargado exitosamente!', 'success');
+            } catch (error) {
+                console.error('Error al crear respaldo:', error);
+                showNotification('❌ Error al crear el respaldo', 'error');
+            }
+        }
+
+        // Restaurar datos desde respaldo
+        function restoreData(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (!backupData.data) {
+                        throw new Error('Formato de respaldo inválido');
+                    }
+                    
+                    if (confirm('⚠️ ¿Estás seguro de que quieres restaurar los datos?\n\nEsto sobrescribirá TODOS los datos actuales del sistema.')) {
+                        // Restaurar datos
+                        localStorage.setItem('inventoryData', JSON.stringify(backupData.data.inventoryData || []));
+                        localStorage.setItem('salesData', JSON.stringify(backupData.data.salesData || []));
+                        localStorage.setItem('clientsData', JSON.stringify(backupData.data.clientsData || []));
+                        localStorage.setItem('calendarEvents', JSON.stringify(backupData.data.calendarEvents || []));
+                        localStorage.setItem('systemSettings', JSON.stringify(backupData.data.systemSettings || {}));
+                        
+                        showNotification('✅ Datos restaurados exitosamente! La página se recargará en 3 segundos.', 'success');
+                        
+                        setTimeout(() => {
+                            location.reload();
+                        }, 3000);
+                    }
+                } catch (error) {
+                    console.error('Error al restaurar datos:', error);
+                    showNotification('❌ Error al leer el archivo de respaldo. Verifica que sea un archivo válido.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Resetear todos los datos
+        function resetAllData() {
+            if (confirm('🚨 ¿Estás COMPLETAMENTE seguro de que quieres eliminar TODOS los datos del sistema?\n\nEsta acción NO se puede deshacer.')) {
+                if (confirm('⚠️ ÚLTIMA ADVERTENCIA: Se eliminarán permanentemente:\n\n• Todos los productos del inventario\n• Todas las ventas registradas\n• Todos los clientes\n• Todos los eventos del calendario\n• Todas las configuraciones\n\n¿Continuar?')) {
+                    localStorage.clear();
+                    showNotification('✅ Todos los datos han sido eliminados. La página se recargará.', 'success');
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'warning' : 'success'}`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '10000';
+            notification.style.minWidth = '300px';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Eliminar después de 5 segundos
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            
+            // Auto-guardar cuando cambien los valores
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (document.getElementById('autoSave').checked) {
+                        saveAllSettings();
+                    }
+                });
+            });
+            
+            // Manejar carga de archivo de respaldo
+            document.getElementById('restoreFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    restoreData(file);
+                    // Limpiar el input
+                    this.value = '';
+                }
+            });
+            
+            console.log('Página de configuración inicializada correctamente');
+        });
+    </script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvAr526Zdh9NFiRv7Vz4hBRQe9qq5lyoQ",
+            authDomain: "ash-ling-sistema.firebaseapp.com",
+            projectId: "ash-ling-sistema",
+            storageBucket: "ash-ling-sistema.firebasestorage.app",
+            messagingSenderId: "643413580483",
+            appId: "1:643413580483:web:d9433150520f96c6ff6076"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+</body>
+</html>
