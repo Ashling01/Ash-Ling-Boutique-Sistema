@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Ash-Ling ERP</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <img src="logo/logo.png" alt="Ash-Ling Logo" class="logo">
+                <h2 class="company-name">Ash-Ling</h2>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="ventas.html" class="menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ventas</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="clientes.html" class="menu-link">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="inventario.html" class="menu-link">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventario</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="facturacion.html" class="menu-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Facturación</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="finanzas.html" class="menu-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Finanzas</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="empleados.html" class="menu-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Empleados</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="reportes.html" class="menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="configuracion.html" class="menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Configuración</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" placeholder="Buscar configuración..." class="search-input" id="searchInput">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                <div class="user-menu">
+                    <button class="user-btn">
+                        <img src="https://via.placeholder.com/40" alt="Usuario" class="user-avatar">
+                        <span class="user-name">Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content-container">
+            <!-- Settings Navigation -->
+            <div class="settings-nav">
+                <button class="settings-tab active" data-tab="company">
+                    <i class="fas fa-building"></i>
+                    Empresa
+                </button>
+                <button class="settings-tab" data-tab="users">
+                    <i class="fas fa-users-cog"></i>
+                    Usuarios
+                </button>
+                <button class="settings-tab" data-tab="system">
+                    <i class="fas fa-cogs"></i>
+                    Sistema
+                </button>
+                <button class="settings-tab" data-tab="integrations">
+                    <i class="fas fa-plug"></i>
+                    Integraciones
+                </button>
+                <button class="settings-tab" data-tab="security">
+                    <i class="fas fa-shield-alt"></i>
+                    Seguridad
+                </button>
+                <button class="settings-tab" data-tab="backup">
+                    <i class="fas fa-database"></i>
+                    Respaldos
+                </button>
+            </div>
+
+            <!-- Company Settings -->
+            <div class="settings-panel active" id="company-panel">
+                <div class="panel-header">
+                    <h2>Configuración de Empresa</h2>
+                    <button class="btn btn-primary" id="saveCompanyBtn">
+                        <i class="fas fa-save"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <form id="companyForm" class="settings-form">
+                        <div class="form-section">
+                            <h3>Información General</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="companyName">Nombre de la Empresa</label>
+                                    <input type="text" id="companyName" name="companyName" value="Ash-Ling">
+                                </div>
+                                <div class="form-group">
+                                    <label for="companyRuc">RUC/NIT</label>
+                                    <input type="text" id="companyRuc" name="companyRuc" value="20123456789">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="companyEmail">Email</label>
+                                    <input type="email" id="companyEmail" name="companyEmail" value="info@ash-ling.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="companyPhone">Teléfono</label>
+                                    <input type="tel" id="companyPhone" name="companyPhone" value="+1 (555) 123-4567">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="companyAddress">Dirección</label>
+                                <textarea id="companyAddress" name="companyAddress" rows="3">123 Business Street, Suite 100, Business City, BC 12345</textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="companyWebsite">Sitio Web</label>
+                                    <input type="url" id="companyWebsite" name="companyWebsite" value="https://www.ash-ling.com">
+                                </div>
+                                <div class="form-group">
+                                    <label for="companyIndustry">Industria</label>
+                                    <select id="companyIndustry" name="companyIndustry">
+                                        <option value="retail">Comercio Minorista</option>
+                                        <option value="wholesale">Comercio Mayorista</option>
+                                        <option value="manufacturing">Manufactura</option>
+                                        <option value="services">Servicios</option>
+                                        <option value="technology">Tecnología</option>
+                                        <option value="other">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Configuración Fiscal</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="taxRate">Tasa de Impuesto (%)</label>
+                                    <input type="number" id="taxRate" name="taxRate" value="16" step="0.01" min="0" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="currency">Moneda</label>
+                                    <select id="currency" name="currency">
+                                        <option value="USD" selected>USD - Dólar Estadounidense</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="MXN">MXN - Peso Mexicano</option>
+                                        <option value="COP">COP - Peso Colombiano</option>
+                                        <option value="PEN">PEN - Sol Peruano</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fiscalYear">Año Fiscal</label>
+                                    <select id="fiscalYear" name="fiscalYear">
+                                        <option value="calendar">Año Calendario (Enero - Diciembre)</option>
+                                        <option value="april">Abril - Marzo</option>
+                                        <option value="july">Julio - Junio</option>
+                                        <option value="october">Octubre - Septiembre</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="invoicePrefix">Prefijo de Factura</label>
+                                    <input type="text" id="invoicePrefix" name="invoicePrefix" value="INV" maxlength="5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Logo y Branding</h3>
+                            <div class="logo-upload">
+                                <div class="current-logo">
+                                    <img src="logo/logo.png" alt="Logo actual" id="currentLogo">
+                                </div>
+                                <div class="upload-controls">
+                                    <input type="file" id="logoFile" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-outline" onclick="document.getElementById('logoFile').click()">
+                                        <i class="fas fa-upload"></i>
+                                        Subir Logo
+                                    </button>
+                                    <p class="upload-info">Formatos: JPG, PNG. Tamaño máximo: 2MB. Recomendado: 200x200px</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Users Settings -->
+            <div class="settings-panel" id="users-panel">
+                <div class="panel-header">
+                    <h2>Gestión de Usuarios</h2>
+                    <button class="btn btn-primary" id="addUserBtn">
+                        <i class="fas fa-plus"></i>
+                        Nuevo Usuario
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="users-table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Último Acceso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="roles-section">
+                        <h3>Roles y Permisos</h3>
+                        <div class="roles-grid">
+                            <div class="role-card">
+                                <h4>Administrador</h4>
+                                <p>Acceso completo al sistema</p>
+                                <ul class="permissions-list">
+                                    <li><i class="fas fa-check"></i> Configuración del sistema</li>
+                                    <li><i class="fas fa-check"></i> Gestión de usuarios</li>
+                                    <li><i class="fas fa-check"></i> Todos los módulos</li>
+                                </ul>
+                            </div>
+                            <div class="role-card">
+                                <h4>Gerente</h4>
+                                <p>Gestión de operaciones</p>
+                                <ul class="permissions-list">
+                                    <li><i class="fas fa-check"></i> Ventas y facturación</li>
+                                    <li><i class="fas fa-check"></i> Reportes avanzados</li>
+                                    <li><i class="fas fa-check"></i> Gestión de empleados</li>
+                                </ul>
+                            </div>
+                            <div class="role-card">
+                                <h4>Vendedor</h4>
+                                <p>Módulo de ventas</p>
+                                <ul class="permissions-list">
+                                    <li><i class="fas fa-check"></i> Crear ventas</li>
+                                    <li><i class="fas fa-check"></i> Gestión de clientes</li>
+                                    <li><i class="fas fa-times"></i> Configuración</li>
+                                </ul>
+                            </div>
+                            <div class="role-card">
+                                <h4>Contador</h4>
+                                <p>Módulos financieros</p>
+                                <ul class="permissions-list">
+                                    <li><i class="fas fa-check"></i> Finanzas</li>
+                                    <li><i class="fas fa-check"></i> Facturación</li>
+                                    <li><i class="fas fa-check"></i> Reportes financieros</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Settings -->
+            <div class="settings-panel" id="system-panel">
+                <div class="panel-header">
+                    <h2>Configuración del Sistema</h2>
+                    <button class="btn btn-primary" id="saveSystemBtn">
+                        <i class="fas fa-save"></i>
+                        Guardar Configuración
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <form id="systemForm" class="settings-form">
+                        <div class="form-section">
+                            <h3>Preferencias Generales</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="language">Idioma</label>
+                                    <select id="language" name="language">
+                                        <option value="es" selected>Español</option>
+                                        <option value="en">English</option>
+                                        <option value="pt">Português</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone">Zona Horaria</label>
+                                    <select id="timezone" name="timezone">
+                                        <option value="America/Mexico_City" selected>Ciudad de México (GMT-6)</option>
+                                        <option value="America/New_York">Nueva York (GMT-5)</option>
+                                        <option value="America/Los_Angeles">Los Ángeles (GMT-8)</option>
+                                        <option value="Europe/Madrid">Madrid (GMT+1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dateFormat">Formato de Fecha</label>
+                                    <select id="dateFormat" name="dateFormat">
+                                        <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="numberFormat">Formato de Números</label>
+                                    <select id="numberFormat" name="numberFormat">
+                                        <option value="1,234.56" selected>1,234.56</option>
+                                        <option value="1.234,56">1.234,56</option>
+                                        <option value="1 234.56">1 234.56</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Notificaciones</h3>
+                            <div class="notification-settings">
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h4>Notificaciones por Email</h4>
+                                        <p>Recibir notificaciones importantes por correo electrónico</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="emailNotifications" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h4>Alertas de Stock Bajo</h4>
+                                        <p>Notificar cuando los productos tengan stock bajo</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="stockAlerts" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <h4>Recordatorios de Vencimiento</h4>
+                                        <p>Alertas para facturas próximas a vencer</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="dueDateReminders" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Configuración de Reportes</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="defaultReportFormat">Formato por Defecto</label>
+                                    <select id="defaultReportFormat" name="defaultReportFormat">
+                                        <option value="pdf" selected>PDF</option>
+                                        <option value="excel">Excel</option>
+                                        <option value="csv">CSV</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="autoReportFrequency">Reportes Automáticos</label>
+                                    <select id="autoReportFrequency" name="autoReportFrequency">
+                                        <option value="none" selected>Deshabilitado</option>
+                                        <option value="daily">Diario</option>
+                                        <option value="weekly">Semanal</option>
+                                        <option value="monthly">Mensual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Integrations Settings -->
+            <div class="settings-panel" id="integrations-panel">
+                <div class="panel-header">
+                    <h2>Integraciones</h2>
+                    <button class="btn btn-primary" id="addIntegrationBtn">
+                        <i class="fas fa-plus"></i>
+                        Nueva Integración
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="integrations-grid">
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="PayPal" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>PayPal</h3>
+                                    <p>Procesamiento de pagos</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="paypalIntegration">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="Stripe" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>Stripe</h3>
+                                    <p>Pagos con tarjeta</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="stripeIntegration">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="QuickBooks" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>QuickBooks</h3>
+                                    <p>Contabilidad</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="quickbooksIntegration" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="MailChimp" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>MailChimp</h3>
+                                    <p>Email marketing</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="mailchimpIntegration">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="Slack" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>Slack</h3>
+                                    <p>Comunicación de equipo</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="slackIntegration">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <img src="https://via.placeholder.com/48" alt="Google Analytics" class="integration-logo">
+                                <div class="integration-info">
+                                    <h3>Google Analytics</h3>
+                                    <p>Análisis web</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="googleAnalyticsIntegration" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="integration-config">
+                                <button class="btn btn-outline">Configurar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-panel" id="security-panel">
+                <div class="panel-header">
+                    <h2>Configuración de Seguridad</h2>
+                    <button class="btn btn-primary" id="saveSecurityBtn">
+                        <i class="fas fa-save"></i>
+                        Guardar Configuración
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="form-section">
+                        <h3>Políticas de Contraseña</h3>
+                        <div class="security-settings">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Longitud Mínima</h4>
+                                    <p>Número mínimo de caracteres para contraseñas</p>
+                                </div>
+                                <input type="number" class="setting-input" value="8" min="6" max="20">
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Requerir Mayúsculas</h4>
+                                    <p>Las contraseñas deben incluir letras mayúsculas</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Requerir Números</h4>
+                                    <p>Las contraseñas deben incluir números</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Requerir Símbolos</h4>
+                                    <p>Las contraseñas deben incluir símbolos especiales</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Autenticación de Dos Factores</h3>
+                        <div class="two-factor-section">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Habilitar 2FA</h4>
+                                    <p>Agregar una capa adicional de seguridad</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="twoFactorAuth">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="qr-code-section" style="display: none;">
+                                <h5>Configurar Aplicación Autenticadora</h5>
+                                <div class="qr-code">
+                                    <img src="https://via.placeholder.com/200x200" alt="QR Code">
+                                </div>
+                                <p>Escanea este código QR con tu aplicación autenticadora (Google Authenticator, Authy, etc.)</p>
+                                <div class="verification-input">
+                                    <input type="text" placeholder="Código de verificación" maxlength="6">
+                                    <button class="btn btn-primary">Verificar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Configuración de Sesión</h3>
+                        <div class="security-settings">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Tiempo de Expiración (minutos)</h4>
+                                    <p>Tiempo antes de cerrar sesión automáticamente</p>
+                                </div>
+                                <input type="number" class="setting-input" value="60" min="15" max="480">
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Bloqueo por Intentos Fallidos</h4>
+                                    <p>Bloquear cuenta después de intentos fallidos</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Número de Intentos</h4>
+                                    <p>Máximo intentos de inicio de sesión</p>
+                                </div>
+                                <input type="number" class="setting-input" value="5" min="3" max="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup Settings -->
+            <div class="settings-panel" id="backup-panel">
+                <div class="panel-header">
+                    <h2>Respaldos y Recuperación</h2>
+                    <button class="btn btn-primary" id="createBackupBtn">
+                        <i class="fas fa-save"></i>
+                        Crear Respaldo
+                    </button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="backup-status">
+                        <div class="status-card">
+                            <div class="status-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-info">
+                                <h3>Último Respaldo</h3>
+                                <p>01 de Septiembre, 2025 - 03:00 AM</p>
+                                <span class="status-label success">Exitoso</span>
+                            </div>
+                        </div>
+                        <div class="status-card">
+                            <div class="status-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="status-info">
+                                <h3>Próximo Respaldo</h3>
+                                <p>02 de Septiembre, 2025 - 03:00 AM</p>
+                                <span class="status-label info">Programado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Configuración Automática</h3>
+                        <div class="backup-settings">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Respaldos Automáticos</h4>
+                                    <p>Crear respaldos automáticamente</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="autoBackup" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="backupFrequency">Frecuencia</label>
+                                    <select id="backupFrequency">
+                                        <option value="daily" selected>Diario</option>
+                                        <option value="weekly">Semanal</option>
+                                        <option value="monthly">Mensual</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupTime">Hora</label>
+                                    <input type="time" id="backupTime" value="03:00">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="retentionPeriod">Período de Retención (días)</label>
+                                <input type="number" id="retentionPeriod" value="30" min="7" max="365">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Historial de Respaldos</h3>
+                        <div class="backup-history">
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Respaldo Completo</h4>
+                                    <p>01 de Septiembre, 2025 - 03:00 AM</p>
+                                    <span class="backup-size">2.5 GB</span>
+                                </div>
+                                <div class="backup-actions">
+                                    <button class="btn btn-outline btn-sm">
+                                        <i class="fas fa-download"></i>
+                                        Descargar
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-undo"></i>
+                                        Restaurar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Respaldo Completo</h4>
+                                    <p>31 de Agosto, 2025 - 03:00 AM</p>
+                                    <span class="backup-size">2.4 GB</span>
+                                </div>
+                                <div class="backup-actions">
+                                    <button class="btn btn-outline btn-sm">
+                                        <i class="fas fa-download"></i>
+                                        Descargar
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-undo"></i>
+                                        Restaurar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <h4>Respaldo Completo</h4>
+                                    <p>30 de Agosto, 2025 - 03:00 AM</p>
+                                    <span class="backup-size">2.3 GB</span>
+                                </div>
+                                <div class="backup-actions">
+                                    <button class="btn btn-outline btn-sm">
+                                        <i class="fas fa-download"></i>
+                                        Descargar
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-undo"></i>
+                                        Restaurar
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Nuevo Usuario</h3>
+                <button class="modal-close" id="closeUserModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userName">Nombre</label>
+                            <input type="text" id="userName" name="userName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" name="userEmail" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userRole">Rol</label>
+                            <select id="userRole" name="userRole" required>
+                                <option value="">Seleccionar rol...</option>
+                                <option value="admin">Administrador</option>
+                                <option value="manager">Gerente</option>
+                                <option value="sales">Vendedor</option>
+                                <option value="accountant">Contador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="userStatus">Estado</label>
+                            <select id="userStatus" name="userStatus" required>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPassword">Contraseña Temporal</label>
+                        <input type="password" id="userPassword" name="userPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelUserBtn">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">
+                    <i class="fas fa-save"></i>
+                    Guardar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data-manager.js"></script>
+    <script src="js/configuracion.js"></script>
+</body>
+</html>

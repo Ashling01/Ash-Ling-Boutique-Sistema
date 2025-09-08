@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empleados - Ash-Ling ERP</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <img src="logo/logo.png" alt="Ash-Ling Logo" class="logo">
+                <h2 class="company-name">Ash-Ling</h2>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="dashboard.html" class="menu-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="ventas.html" class="menu-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ventas</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="clientes.html" class="menu-link">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="inventario.html" class="menu-link">
+                    <i class="fas fa-boxes"></i>
+                    <span>Inventario</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="facturacion.html" class="menu-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Facturación</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="finanzas.html" class="menu-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Finanzas</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="empleados.html" class="menu-link">
+                    <i class="fas fa-user-tie"></i>
+                    <span>Empleados</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="reportes.html" class="menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="configuracion.html" class="menu-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Empleados</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" placeholder="Buscar empleados..." class="search-input" id="searchInput">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                <div class="user-menu">
+                    <button class="user-btn">
+                        <img src="https://via.placeholder.com/40" alt="Usuario" class="user-avatar">
+                        <span class="user-name">Admin</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content-container">
+            <!-- HR Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Empleados</h3>
+                        <p class="stat-value" id="totalEmployees">0</p>
+                        <span class="stat-change positive">+2</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Activos</h3>
+                        <p class="stat-value" id="activeEmployees">0</p>
+                        <span class="stat-change positive">+1</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>En Vacaciones</h3>
+                        <p class="stat-value" id="onVacation">0</p>
+                        <span class="stat-change neutral">0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Nómina Mensual</h3>
+                        <p class="stat-value" id="monthlyPayroll">$0</p>
+                        <span class="stat-change positive">+5.2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="actions-panel">
+                <div class="section-header">
+                    <h2>Gestión de Empleados</h2>
+                    <div class="actions-group">
+                        <button class="btn btn-secondary" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            Exportar
+                        </button>
+                        <button class="btn btn-secondary" id="payrollBtn">
+                            <i class="fas fa-money-check-alt"></i>
+                            Procesar Nómina
+                        </button>
+                        <button class="btn btn-primary" id="newEmployeeBtn">
+                            <i class="fas fa-plus"></i>
+                            Nuevo Empleado
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-container">
+                    <select id="departmentFilter" class="filter-select">
+                        <option value="">Todos los departamentos</option>
+                        <option value="ventas">Ventas</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="desarrollo">Desarrollo</option>
+                        <option value="administracion">Administración</option>
+                        <option value="recursos_humanos">Recursos Humanos</option>
+                    </select>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Todos los estados</option>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="vacation">En Vacaciones</option>
+                        <option value="medical_leave">Licencia Médica</option>
+                    </select>
+                    <select id="positionFilter" class="filter-select">
+                        <option value="">Todas las posiciones</option>
+                        <option value="manager">Gerente</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="employee">Empleado</option>
+                        <option value="intern">Practicante</option>
+                    </select>
+                    <button class="btn btn-outline" id="clearFiltersBtn">
+                        <i class="fas fa-times"></i>
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Employees Grid -->
+            <div class="employees-grid" id="employeesGrid">
+                <!-- Dynamic content -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Mostrando <span id="showingStart">0</span> a <span id="showingEnd">0</span> de <span id="totalRecords">0</span> empleados
+                </div>
+                <div class="pagination">
+                    <button class="pagination-btn" id="prevPageBtn" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="pagination-numbers" id="paginationNumbers">
+                        <!-- Dynamic page numbers -->
+                    </div>
+                    <button class="pagination-btn" id="nextPageBtn" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Employee Modal -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content employee-modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Empleado</h3>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="employeeForm" class="employee-form">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h4>Información Personal</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">Nombre</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Apellido</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input type="tel" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthDate">Fecha de Nacimiento</label>
+                                <input type="date" id="birthDate" name="birthDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="nationalId">Cédula</label>
+                                <input type="text" id="nationalId" name="nationalId" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Dirección</label>
+                            <textarea id="address" name="address" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Employment Information -->
+                    <div class="form-section">
+                        <h4>Información Laboral</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeId">ID Empleado</label>
+                                <input type="text" id="employeeId" name="employeeId" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Fecha de Inicio</label>
+                                <input type="date" id="startDate" name="startDate" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="department">Departamento</label>
+                                <select id="department" name="department" required>
+                                    <option value="">Seleccionar departamento...</option>
+                                    <option value="ventas">Ventas</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="desarrollo">Desarrollo</option>
+                                    <option value="administracion">Administración</option>
+                                    <option value="recursos_humanos">Recursos Humanos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="position">Posición</label>
+                                <select id="position" name="position" required>
+                                    <option value="">Seleccionar posición...</option>
+                                    <option value="manager">Gerente</option>
+                                    <option value="supervisor">Supervisor</option>
+                                    <option value="employee">Empleado</option>
+                                    <option value="intern">Practicante</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="salary">Salario</label>
+                                <input type="number" id="salary" name="salary" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contractType">Tipo de Contrato</label>
+                                <select id="contractType" name="contractType" required>
+                                    <option value="full_time">Tiempo Completo</option>
+                                    <option value="part_time">Medio Tiempo</option>
+                                    <option value="contractor">Contratista</option>
+                                    <option value="intern">Practicante</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="supervisor">Supervisor</label>
+                                <select id="supervisor" name="supervisor">
+                                    <option value="">Sin supervisor...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Estado</label>
+                                <select id="status" name="status" required>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                    <option value="vacation">En Vacaciones</option>
+                                    <option value="medical_leave">Licencia Médica</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="form-section">
+                        <h4>Contacto de Emergencia</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="emergencyName">Nombre</label>
+                                <input type="text" id="emergencyName" name="emergencyName">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergencyPhone">Teléfono</label>
+                                <input type="tel" id="emergencyPhone" name="emergencyPhone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="emergencyRelation">Relación</label>
+                            <input type="text" id="emergencyRelation" name="emergencyRelation" placeholder="Ej: Esposo/a, Padre, Madre, etc.">
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="notes">Notas</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Notas adicionales sobre el empleado..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelBtn">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveEmployeeBtn">
+                    <i class="fas fa-save"></i>
+                    Guardar Empleado
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Detail Modal -->
+    <div class="modal" id="employeeDetailModal">
+        <div class="modal-content employee-detail-modal">
+            <div class="modal-header">
+                <h3 id="detailModalTitle">Detalles del Empleado</h3>
+                <button class="modal-close" id="closeDetailModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="employeeDetailContent">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="closeDetailBtn">Cerrar</button>
+                <button type="button" class="btn btn-secondary" id="editEmployeeBtn">
+                    <i class="fas fa-edit"></i>
+                    Editar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data-manager.js"></script>
+    <script src="js/empleados.js"></script>
+</body>
+</html>
