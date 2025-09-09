@@ -232,6 +232,84 @@ var FirebaseService = {
       });
   },
   
+  // === CLIENTS MANAGEMENT ===
+  saveClients: function(clients, callback) {
+    if (!this.isReady()) {
+      console.error('❌ Firebase no está inicializado');
+      if (callback) callback(new Error('Firebase no inicializado'));
+      return;
+    }
+    
+    var clientsRef = database.ref('ash-ling/clients');
+    var dataToSave = {
+      clients: clients,
+      lastUpdated: new Date().toISOString(),
+      updatedBy: (auth.currentUser && auth.currentUser.email) || 'system'
+    };
+    
+    clientsRef.set(dataToSave)
+      .then(function() {
+        console.log('✅ Clientes sincronizados con Firebase');
+        if (callback) callback(null, true);
+      })
+      .catch(function(error) {
+        console.error('❌ Error al guardar clientes:', error.message);
+        if (callback) callback(error);
+      });
+  },
+  
+  loadClients: function(callback) {
+    if (!this.isReady()) {
+      console.error('❌ Firebase no está inicializado');
+      if (callback) callback(new Error('Firebase no inicializado'), []);
+      return;
+    }
+    
+    var clientsRef = database.ref('ash-ling/clients');
+    clientsRef.once('value')
+      .then(function(snapshot) {
+        if (snapshot.exists()) {
+          var data = snapshot.val();
+          var clients = data.clients || [];
+          console.log('✅ Clientes cargados desde Firebase:', clients.length);
+          if (callback) callback(null, clients);
+        } else {
+          console.log('ℹ️ No hay datos de clientes en Firebase');
+          if (callback) callback(null, []);
+        }
+      })
+      .catch(function(error) {
+        console.error('❌ Error al cargar clientes:', error.message);
+        if (callback) callback(error, []);
+      });
+  },
+  
+  onClientsChange: function(callback) {
+    if (!this.isReady()) {
+      console.error('❌ Firebase no está inicializado');
+      return function() {}; // unsubscribe vacío
+    }
+    
+    var clientsRef = database.ref('ash-ling/clients');
+    console.log('👂 Escuchando cambios en clientes Firebase...');
+    
+    return clientsRef.on('value', function(snapshot) {
+      if (snapshot.exists()) {
+        var data = snapshot.val();
+        var clients = data.clients || [];
+        console.log('🔄 Cambio detectado en clientes Firebase:', clients.length);
+        
+        // Solo actualizar si hay cambios reales
+        var currentLocal = JSON.parse(localStorage.getItem('ash_ling_clients') || '[]');
+        if (JSON.stringify(currentLocal) !== JSON.stringify(clients)) {
+          console.log('📥 Aplicando cambios de clientes desde Firebase...');
+          localStorage.setItem('ash_ling_clients', JSON.stringify(clients));
+          callback(clients);
+        }
+      }
+    });
+  },
+  
   // === REAL-TIME SYNC ===
   onInventoryChange: function(callback) {
     if (!this.isReady()) {
@@ -263,6 +341,7 @@ var FirebaseService = {
     var self = this;
     console.log('⚡ Configurando sincronización en tiempo real...');
     
+    // Sincronización de inventario
     this.onInventoryChange(function(products) {
       console.log('🔄 Inventario actualizado desde otro dispositivo');
       
@@ -277,6 +356,24 @@ var FirebaseService = {
       // Disparar evento personalizado para otras partes del sistema
       window.dispatchEvent(new CustomEvent('inventoryUpdated', { 
         detail: { products: products, source: 'firebase' } 
+      }));
+    });
+    
+    // Sincronización de clientes
+    this.onClientsChange(function(clients) {
+      console.log('🔄 Clientes actualizados desde otro dispositivo');
+      
+      // Notificar al sistema de clientes si está activo
+      if (window.clientesManager) {
+        window.clientesManager.clients = clients;
+        window.clientesManager.renderClients();
+        window.clientesManager.updateStats();
+        window.clientesManager.showNotification('📱 Clientes sincronizados desde otro dispositivo', 'info');
+      }
+      
+      // Disparar evento personalizado
+      window.dispatchEvent(new CustomEvent('clientsUpdated', { 
+        detail: { clients: clients, source: 'firebase' } 
       }));
     });
   },

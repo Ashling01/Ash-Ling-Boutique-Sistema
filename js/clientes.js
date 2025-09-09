@@ -1,20 +1,67 @@
 // Gestión de Clientes - Ash-Ling ERP
 class ClientesManager {
     constructor() {
-        this.clients = this.loadClients();
-        this.initializeEventListeners();
-        this.renderClients();
-        this.updateStats();
+        console.log('🚀 Inicializando ClientesManager...');
+        this.clients = [];
+        this.initializeData();
     }
 
-    // Cargar clientes desde localStorage
-    loadClients() {
+    initializeData() {
+        var self = this;
+        console.log('🔄 Cargando datos de clientes desde Firebase...');
+        
+        // Verificar si Firebase está disponible
+        if (window.FirebaseService && window.FirebaseService.isReady()) {
+            console.log('✅ Firebase disponible, cargando clientes de la nube...');
+            
+            window.FirebaseService.loadClients(function(error, firebaseClients) {
+                if (!error && firebaseClients && firebaseClients.length > 0) {
+                    console.log('✅ Clientes cargados desde Firebase:', firebaseClients.length);
+                    self.clients = firebaseClients;
+                    localStorage.setItem('ash_ling_clients', JSON.stringify(firebaseClients));
+                } else {
+                    console.log('ℹ️ Cargando clientes desde localStorage...');
+                    self.clients = self.loadFromLocalStorage();
+                }
+                
+                self.finishInitialization();
+            });
+        } else {
+            console.log('ℹ️ Firebase no disponible, cargando desde localStorage...');
+            this.clients = this.loadFromLocalStorage();
+            this.finishInitialization();
+            
+            // Intentar conectar Firebase después
+            setTimeout(function() {
+                if (window.FirebaseService && window.FirebaseService.isReady()) {
+                    console.log('🔄 Firebase ahora disponible para clientes...');
+                    self.syncWithFirebase();
+                }
+            }, 3000);
+        }
+    }
+    
+    loadFromLocalStorage() {
         const savedClients = localStorage.getItem('ash_ling_clients');
         if (savedClients) {
             return JSON.parse(savedClients);
         }
         
         // Datos de muestra si no hay clientes guardados
+        return this.generateSampleClients();
+    }
+    
+    finishInitialization() {
+        console.log('✅ ClientesManager inicializado completamente');
+        console.log('Clientes cargados:', this.clients.length);
+        
+        this.initializeEventListeners();
+        this.renderClients();
+        this.updateStats();
+        this.setupFirebaseAutoSync();
+    }
+    
+    generateSampleClients() {
         return [
             {
                 id: 'CLI001',
@@ -76,7 +123,28 @@ class ClientesManager {
 
     // Guardar clientes en localStorage
     saveClients() {
-        localStorage.setItem('ash_ling_clients', JSON.stringify(this.clients));
+        try {
+            // Guardar en localStorage primero
+            localStorage.setItem('ash_ling_clients', JSON.stringify(this.clients));
+            console.log('📱 Clientes guardados localmente:', this.clients.length);
+            
+            // Sincronizar automáticamente con Firebase si está disponible
+            if (window.FirebaseService && window.FirebaseService.isReady()) {
+                var self = this;
+                console.log('🔄 Auto-sincronizando clientes con Firebase...');
+                
+                window.FirebaseService.saveClients(this.clients, function(error, success) {
+                    if (error) {
+                        console.warn('⚠️ Error en auto-sincronización de clientes:', error.message);
+                    } else {
+                        console.log('✅ Auto-sincronización de clientes exitosa');
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Error al guardar clientes:', error);
+            this.showNotification('Error al guardar clientes', 'error');
+        }
     }
 
     // Inicializar event listeners
@@ -85,6 +153,14 @@ class ClientesManager {
         document.getElementById('newClientBtn').addEventListener('click', () => {
             this.showClientModal();
         });
+        
+        // Botón sincronizar Firebase
+        const syncBtn = document.getElementById('syncClientesBtn');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', () => {
+                this.syncWithFirebase();
+            });
+        }
 
         // Búsqueda
         document.getElementById('searchClients').addEventListener('input', (e) => {
@@ -550,6 +626,124 @@ class ClientesManager {
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+    
+    // === FIREBASE SYNCHRONIZATION ===
+    syncWithFirebase() {
+        console.log('🔄 Iniciando sincronización de clientes con Firebase...');
+        
+        // Verificar si Firebase está disponible
+        if (!window.FirebaseService || !window.FirebaseService.isReady()) {
+            this.showNotification('❌ Firebase no está disponible. Verifique la conexión a Internet.', 'error');
+            return;
+        }
+        
+        // Cambiar el texto del botón mientras sincroniza
+        var syncBtn = document.getElementById('syncClientesBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+            syncBtn.disabled = true;
+        }
+        
+        var self = this;
+        
+        // Subir clientes locales a Firebase
+        this.uploadToFirebase(function(error) {
+            if (error) {
+                console.error('❌ Error en subida de clientes:', error);
+                self.showNotification('Error al subir clientes: ' + error.message, 'error');
+                self.resetSyncButton();
+                return;
+            }
+            
+            // Descargar clientes desde Firebase
+            self.downloadFromFirebase(function(error, result) {
+                self.resetSyncButton();
+                
+                if (error) {
+                    console.error('❌ Error en descarga de clientes:', error);
+                    self.showNotification('Clientes subidos, pero error al descargar: ' + error.message, 'warning');
+                } else {
+                    console.log('✅ Sincronización de clientes completa');
+                    self.showNotification('🔄 Sincronización completa con Firebase. Clientes actualizados.', 'success');
+                    
+                    // Recargar datos en la interfaz
+                    self.renderClients();
+                    self.updateStats();
+                }
+            });
+        });
+    }
+    
+    uploadToFirebase(callback) {
+        console.log('⬆️ Subiendo clientes a Firebase...');
+        var self = this;
+        
+        window.FirebaseService.saveClients(this.clients, function(error, success) {
+            if (error) {
+                console.error('❌ Error al subir clientes:', error);
+                callback(error);
+            } else {
+                console.log('✅ Clientes subidos exitosamente');
+                callback(null);
+            }
+        });
+    }
+    
+    downloadFromFirebase(callback) {
+        console.log('⬇️ Descargando clientes desde Firebase...');
+        var self = this;
+        
+        window.FirebaseService.loadClients(function(error, firebaseClients) {
+            if (error) {
+                console.error('❌ Error al descargar clientes:', error);
+                callback(error, null);
+            } else if (firebaseClients && firebaseClients.length > 0) {
+                console.log('✅ Clientes descargados desde Firebase:', firebaseClients.length);
+                
+                // Actualizar clientes locales
+                self.clients = firebaseClients;
+                localStorage.setItem('ash_ling_clients', JSON.stringify(firebaseClients));
+                
+                callback(null, firebaseClients);
+            } else {
+                console.log('ℹ️ No hay clientes en Firebase, manteniendo datos locales');
+                callback(null, self.clients);
+            }
+        });
+    }
+    
+    resetSyncButton() {
+        var syncBtn = document.getElementById('syncClientesBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Sincronizar Nube';
+            syncBtn.disabled = false;
+        }
+    }
+    
+    setupFirebaseAutoSync() {
+        var self = this;
+        
+        // Escuchar cuando Firebase esté listo
+        window.addEventListener('firebaseReady', function() {
+            console.log('🔥 Firebase listo para clientes, configurando auto-sincronización...');
+            
+            // Opcional: Auto-sincronización periódica
+            // setInterval(function() {
+            //     console.log('🔄 Auto-sincronización programada de clientes...');
+            //     self.syncWithFirebase();
+            // }, 10 * 60 * 1000); // cada 10 minutos
+        });
+        
+        // Escuchar cambios desde otros dispositivos
+        window.addEventListener('clientsUpdated', function(event) {
+            if (event.detail.source === 'firebase') {
+                console.log('🔄 Clientes actualizados desde Firebase');
+                self.clients = event.detail.clients;
+                self.renderClients();
+                self.updateStats();
+            }
+        });
     }
 }
 

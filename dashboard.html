@@ -96,6 +96,13 @@
                     <input type="text" placeholder="Buscar..." class="search-input">
                     <i class="fas fa-search search-icon"></i>
                 </div>
+                
+                <!-- Botón de Sincronización -->
+                <button id="syncButton" class="sync-button" title="Sincronizar datos">
+                    <i class="fas fa-sync-alt"></i>
+                    <span class="sync-text">Sincronizar</span>
+                </button>
+                
                 <div class="notifications">
                     <button class="notification-btn">
                         <i class="fas fa-bell"></i>
@@ -204,6 +211,12 @@
     </main>
 
     <script src="js/data-manager.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="js/firebase-service.js"></script>
+    
     <script src="js/dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
