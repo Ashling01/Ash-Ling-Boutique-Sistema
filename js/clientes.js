@@ -121,7 +121,7 @@ class ClientesManager {
         ];
     }
 
-    // Guardar clientes en localStorage
+    // Guardar clientes en localStorage y Firebase automáticamente
     saveClients() {
         try {
             // Guardar en localStorage primero
@@ -136,14 +136,34 @@ class ClientesManager {
                 window.FirebaseService.saveClients(this.clients, function(error, success) {
                     if (error) {
                         console.warn('⚠️ Error en auto-sincronización de clientes:', error.message);
+                        self.showNotification('⚠️ Datos guardados localmente. Error al sincronizar con Firebase.', 'warning');
                     } else {
                         console.log('✅ Auto-sincronización de clientes exitosa');
+                        
+                        // Disparar evento de clientes actualizados para otros módulos
+                        const event = new CustomEvent('clientsUpdated', {
+                            detail: {
+                                clients: self.clients,
+                                source: 'local_change',
+                                timestamp: new Date().toISOString()
+                            }
+                        });
+                        window.dispatchEvent(event);
+                        
+                        // Mostrar notificación de éxito solo para cambios importantes
+                        if (self.lastSaveTime && (Date.now() - self.lastSaveTime) > 5000) {
+                            self.showNotification('💾 Clientes sincronizados con Firebase', 'success');
+                        }
+                        self.lastSaveTime = Date.now();
                     }
                 });
+            } else {
+                console.log('⚠️ Firebase no disponible, datos guardados solo localmente');
+                this.showNotification('💾 Datos guardados localmente. Sincronización pendiente.', 'info');
             }
         } catch (error) {
             console.error('❌ Error al guardar clientes:', error);
-            this.showNotification('Error al guardar clientes', 'error');
+            this.showNotification('❌ Error al guardar clientes', 'error');
         }
     }
 
@@ -308,7 +328,8 @@ class ClientesManager {
             estado: formData.get('estado'),
             tipo: formData.get('tipo'),
             fechaRegistro: clientId ? this.clients.find(c => c.id === clientId).fechaRegistro : new Date().toISOString().split('T')[0],
-            totalCompras: clientId ? parseFloat(formData.get('totalCompras')) || 0 : 0
+            totalCompras: clientId ? parseFloat(formData.get('totalCompras')) || 0 : 0,
+            ultimaActualizacion: new Date().toISOString()
         };
 
         try {
@@ -317,12 +338,15 @@ class ClientesManager {
                 const index = this.clients.findIndex(c => c.id === clientId);
                 if (index !== -1) {
                     this.clients[index] = clientData;
+                    console.log('✏️ Cliente actualizado:', clientData.nombre);
                 }
             } else {
                 // Agregar nuevo cliente
                 this.clients.push(clientData);
+                console.log('➕ Nuevo cliente agregado:', clientData.nombre);
             }
 
+            // Guardar automáticamente en Firebase y localStorage
             this.saveClients();
             this.renderClients();
             this.updateStats();
@@ -330,27 +354,36 @@ class ClientesManager {
             // Cerrar modal
             document.getElementById('clientModal').remove();
             
-            // Mostrar notificación
-            this.showNotification(`Cliente ${clientId ? 'actualizado' : 'creado'} exitosamente`, 'success');
+            // Mostrar notificación de éxito
+            const action = clientId ? 'actualizado' : 'creado';
+            this.showNotification(`✅ Cliente "${clientData.nombre}" ${action} y sincronizado con Firebase`, 'success');
             
         } catch (error) {
-            console.error('Error al guardar cliente:', error);
-            this.showNotification('Error al guardar el cliente', 'error');
+            console.error('❌ Error al guardar cliente:', error);
+            this.showNotification('❌ Error al guardar el cliente: ' + error.message, 'error');
         }
     }
 
     // Eliminar cliente
     deleteClient(clientId) {
-        if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+        // Encontrar el cliente antes de eliminarlo
+        const client = this.clients.find(c => c.id === clientId);
+        const clientName = client ? client.nombre : clientId;
+        
+        if (confirm(`¿Estás seguro de que deseas eliminar al cliente "${clientName}"?`)) {
             try {
                 this.clients = this.clients.filter(c => c.id !== clientId);
+                console.log('🗑️ Cliente eliminado:', clientName);
+                
+                // Guardar automáticamente en Firebase y localStorage
                 this.saveClients();
                 this.renderClients();
                 this.updateStats();
-                this.showNotification('Cliente eliminado exitosamente', 'success');
+                
+                this.showNotification(`✅ Cliente "${clientName}" eliminado y sincronizado con Firebase`, 'success');
             } catch (error) {
-                console.error('Error al eliminar cliente:', error);
-                this.showNotification('Error al eliminar el cliente', 'error');
+                console.error('❌ Error al eliminar cliente:', error);
+                this.showNotification('❌ Error al eliminar el cliente: ' + error.message, 'error');
             }
         }
     }
@@ -728,20 +761,79 @@ class ClientesManager {
         window.addEventListener('firebaseReady', function() {
             console.log('🔥 Firebase listo para clientes, configurando auto-sincronización...');
             
-            // Opcional: Auto-sincronización periódica
-            // setInterval(function() {
-            //     console.log('🔄 Auto-sincronización programada de clientes...');
-            //     self.syncWithFirebase();
-            // }, 10 * 60 * 1000); // cada 10 minutos
+            // Configurar sincronización en tiempo real con Firebase
+            if (window.FirebaseService && window.FirebaseService.setupRealTimeSync) {
+                window.FirebaseService.setupRealTimeSync('clients', function(remoteClients) {
+                    console.log('🔄 Cambios detectados en clientes remotos:', remoteClients.length);
+                    
+                    // Verificar si hay cambios reales
+                    const localClientIds = self.clients.map(c => c.id).sort();
+                    const remoteClientIds = remoteClients.map(c => c.id).sort();
+                    
+                    const hasChanges = JSON.stringify(localClientIds) !== JSON.stringify(remoteClientIds) ||
+                                     JSON.stringify(self.clients) !== JSON.stringify(remoteClients);
+                    
+                    if (hasChanges) {
+                        console.log('✅ Aplicando cambios de clientes desde Firebase');
+                        self.clients = remoteClients;
+                        localStorage.setItem('ash_ling_clients', JSON.stringify(remoteClients));
+                        
+                        // Actualizar interfaz
+                        self.renderClients();
+                        self.updateStats();
+                        
+                        // Disparar evento para otros módulos
+                        const event = new CustomEvent('clientsUpdated', {
+                            detail: {
+                                clients: remoteClients,
+                                source: 'firebase',
+                                timestamp: new Date().toISOString()
+                            }
+                        });
+                        window.dispatchEvent(event);
+                        
+                        // Mostrar notificación de sincronización
+                        self.showNotification('🔄 Clientes actualizados desde otro dispositivo', 'info');
+                    }
+                });
+            }
+            
+            // Auto-sincronización periódica opcional (cada 5 minutos)
+            setInterval(function() {
+                if (window.FirebaseService && window.FirebaseService.isReady()) {
+                    console.log('🔄 Sincronización periódica de clientes...');
+                    self.downloadFromFirebase(function(error, result) {
+                        if (!error && result) {
+                            console.log('✅ Sincronización periódica completada');
+                        }
+                    });
+                }
+            }, 5 * 60 * 1000); // cada 5 minutos
         });
         
-        // Escuchar cambios desde otros dispositivos
+        // Escuchar cambios desde otros módulos del sistema
         window.addEventListener('clientsUpdated', function(event) {
-            if (event.detail.source === 'firebase') {
-                console.log('🔄 Clientes actualizados desde Firebase');
-                self.clients = event.detail.clients;
-                self.renderClients();
-                self.updateStats();
+            if (event.detail.source === 'firebase' && event.detail.clients) {
+                console.log('🔄 Clientes actualizados desde Firebase via evento');
+                if (JSON.stringify(self.clients) !== JSON.stringify(event.detail.clients)) {
+                    self.clients = event.detail.clients;
+                    self.renderClients();
+                    self.updateStats();
+                }
+            }
+        });
+        
+        // Detectar cuando el usuario vuelve a la pestaña (para sincronizar)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && window.FirebaseService && window.FirebaseService.isReady()) {
+                console.log('👁️ Usuario regresó a la pestaña, verificando sincronización...');
+                setTimeout(function() {
+                    self.downloadFromFirebase(function(error, result) {
+                        if (!error) {
+                            console.log('✅ Verificación de sincronización completada');
+                        }
+                    });
+                }, 1000);
             }
         });
     }
