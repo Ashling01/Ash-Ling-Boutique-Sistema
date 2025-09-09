@@ -1,13 +1,74 @@
 // Gestión de Ventas - Ash-Ling ERP
 class VentasManager {
     constructor() {
-        this.sales = this.loadSales();
-        this.clients = this.loadClients();
-        this.products = this.loadProducts();
+        console.log('🚀 Inicializando VentasManager...');
         
-        console.log('VentasManager inicializado');
-        console.log('Productos cargados:', this.products);
-        console.log('Clientes cargados:', this.clients);
+        // Inicializar datos básicos
+        this.sales = [];
+        this.clients = this.loadClients();
+        this.products = [];
+        
+        // Intentar cargar datos desde Firebase primero
+        this.initializeData();
+    }
+
+    initializeData() {
+        var self = this;
+        console.log('🔄 Cargando datos de ventas desde Firebase...');
+        
+        // Verificar si Firebase está disponible
+        if (window.FirebaseService && window.FirebaseService.isReady()) {
+            console.log('✅ Firebase disponible, cargando datos de la nube...');
+            
+            // Cargar ventas desde Firebase
+            window.FirebaseService.loadSales(100, function(error, firebaseSales) {
+                if (!error && firebaseSales && firebaseSales.length > 0) {
+                    console.log('✅ Ventas cargadas desde Firebase:', firebaseSales.length);
+                    self.sales = firebaseSales;
+                    localStorage.setItem('ash_ling_ventas', JSON.stringify(firebaseSales));
+                } else {
+                    console.log('ℹ️ Cargando ventas desde localStorage...');
+                    self.sales = self.loadSales();
+                }
+                
+                // Cargar productos (inventario)
+                window.FirebaseService.loadInventoryProducts(function(error, firebaseProducts) {
+                    if (!error && firebaseProducts && firebaseProducts.length > 0) {
+                        console.log('✅ Productos cargados desde Firebase:', firebaseProducts.length);
+                        self.products = self.adaptProductsForSales(firebaseProducts);
+                    } else {
+                        console.log('ℹ️ Cargando productos desde localStorage...');
+                        self.products = self.loadProducts();
+                    }
+                    
+                    self.finishInitialization();
+                });
+            });
+        } else {
+            console.log('ℹ️ Firebase no disponible, cargando desde localStorage...');
+            this.loadFromLocalStorage();
+            
+            // Intentar conectar Firebase después
+            setTimeout(function() {
+                if (window.FirebaseService && window.FirebaseService.isReady()) {
+                    console.log('🔄 Firebase ahora disponible para ventas...');
+                    self.syncWithFirebase();
+                }
+            }, 3000);
+        }
+    }
+    
+    loadFromLocalStorage() {
+        this.sales = this.loadSales();
+        this.products = this.loadProducts();
+        this.finishInitialization();
+    }
+    
+    finishInitialization() {
+        console.log('✅ VentasManager inicializado completamente');
+        console.log('Productos cargados:', this.products.length);
+        console.log('Ventas cargadas:', this.sales.length);
+        console.log('Clientes cargados:', this.clients.length);
         
         // Verificar si los productos tienen la estructura correcta
         if (this.products.length === 0 || !this.products[0].hasOwnProperty('codigo')) {
@@ -19,6 +80,20 @@ class VentasManager {
         this.renderSales();
         this.updateStats();
         this.loadFilters();
+    }
+    
+    // Adaptar productos del inventario para el sistema de ventas
+    adaptProductsForSales(inventoryProducts) {
+        return inventoryProducts.map(function(product) {
+            return {
+                id: product.id,
+                codigo: product.code || product.codigo || 'N/A',
+                producto: product.name || product.producto || 'Producto',
+                categoria: product.category || product.categoria || 'Sin categoría',
+                precioVenta: product.salePrice || product.precioVenta || 0,
+                stock: product.stock || 0
+            };
+        });
     }
 
     // Reinicializar datos de productos
@@ -126,7 +201,20 @@ class VentasManager {
 
     // Guardar ventas en localStorage
     saveSales() {
-        localStorage.setItem('ash_ling_sales', JSON.stringify(this.sales));
+        try {
+            // Guardar en localStorage primero
+            localStorage.setItem('ash_ling_ventas', JSON.stringify(this.sales));
+            console.log('📱 Ventas guardadas localmente:', this.sales.length);
+            
+            // Sincronizar automáticamente con Firebase si está disponible
+            if (window.FirebaseService && window.FirebaseService.isReady()) {
+                console.log('🔄 Auto-sincronizando ventas con Firebase...');
+                // No sincronizar todas las ventas, solo notificar el cambio
+                // La sincronización completa se hará manualmente o en intervalos
+            }
+        } catch (error) {
+            console.error('❌ Error al guardar ventas:', error);
+        }
     }
 
     // Inicializar event listeners
@@ -135,6 +223,14 @@ class VentasManager {
         document.getElementById('newSaleBtn').addEventListener('click', () => {
             this.showSaleModal();
         });
+        
+        // Botón sincronizar Firebase
+        const syncBtn = document.getElementById('syncVentasBtn');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', () => {
+                this.syncWithFirebase();
+            });
+        }
 
         // Búsqueda
         document.getElementById('searchSales').addEventListener('input', (e) => {
@@ -465,6 +561,22 @@ class VentasManager {
                 // ✅ DESCONTAR DEL INVENTARIO - Solo para ventas nuevas
                 console.log('🔄 Descontando productos del inventario...');
                 this.updateInventoryStock(productos);
+                
+                // 🔥 SINCRONIZAR NUEVA VENTA CON FIREBASE
+                if (window.FirebaseService && window.FirebaseService.isReady()) {
+                    var self = this;
+                    console.log('🔄 Guardando nueva venta en Firebase...');
+                    window.FirebaseService.saveSale(saleData, function(error, firebaseId) {
+                        if (error) {
+                            console.warn('⚠️ Error al guardar venta en Firebase:', error.message);
+                        } else {
+                            console.log('✅ Venta guardada en Firebase con ID:', firebaseId);
+                            // Actualizar la venta local con el ID de Firebase
+                            saleData.firebaseId = firebaseId;
+                            self.saveSales();
+                        }
+                    });
+                }
             }
 
             this.saveSales();
@@ -1050,6 +1162,150 @@ class VentasManager {
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+    
+    // === FIREBASE SYNCHRONIZATION ===
+    syncWithFirebase() {
+        console.log('🔄 Iniciando sincronización de ventas con Firebase...');
+        
+        // Verificar si Firebase está disponible
+        if (!window.FirebaseService || !window.FirebaseService.isReady()) {
+            this.showNotification('❌ Firebase no está disponible. Verifique la conexión a Internet.', 'error');
+            return;
+        }
+        
+        // Cambiar el texto del botón mientras sincroniza
+        var syncBtn = document.getElementById('syncVentasBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+            syncBtn.disabled = true;
+        }
+        
+        var self = this;
+        
+        // Subir ventas locales que no tienen firebaseId
+        this.uploadPendingSales(function(error) {
+            if (error) {
+                console.error('❌ Error en subida de ventas:', error);
+                self.showNotification('Error al subir ventas: ' + error.message, 'error');
+                self.resetSyncButton();
+                return;
+            }
+            
+            // Descargar ventas desde Firebase
+            self.downloadFromFirebase(function(error, result) {
+                self.resetSyncButton();
+                
+                if (error) {
+                    console.error('❌ Error en descarga de ventas:', error);
+                    self.showNotification('Ventas subidas, pero error al descargar: ' + error.message, 'warning');
+                } else {
+                    console.log('✅ Sincronización de ventas completa');
+                    self.showNotification('🔄 Sincronización completa con Firebase. Ventas actualizadas.', 'success');
+                    
+                    // Recargar datos en la interfaz
+                    self.renderSales();
+                    self.updateStats();
+                }
+            });
+        });
+    }
+    
+    uploadPendingSales(callback) {
+        console.log('⬆️ Subiendo ventas pendientes a Firebase...');
+        var self = this;
+        var ventasPendientes = this.sales.filter(function(sale) {
+            return !sale.firebaseId;
+        });
+        
+        if (ventasPendientes.length === 0) {
+            console.log('ℹ️ No hay ventas pendientes para subir');
+            callback(null);
+            return;
+        }
+        
+        console.log('📤 Subiendo', ventasPendientes.length, 'ventas pendientes...');
+        var ventasCompletadas = 0;
+        var errores = [];
+        
+        ventasPendientes.forEach(function(sale, index) {
+            window.FirebaseService.saveSale(sale, function(error, firebaseId) {
+                if (error) {
+                    console.error('❌ Error al subir venta:', error);
+                    errores.push(error);
+                } else {
+                    console.log('✅ Venta subida con ID:', firebaseId);
+                    sale.firebaseId = firebaseId;
+                }
+                
+                ventasCompletadas++;
+                
+                if (ventasCompletadas === ventasPendientes.length) {
+                    // Actualizar localStorage con los nuevos firebaseIds
+                    self.saveSales();
+                    
+                    if (errores.length > 0) {
+                        callback(errores[0]);
+                    } else {
+                        console.log('✅ Todas las ventas pendientes subidas exitosamente');
+                        callback(null);
+                    }
+                }
+            });
+        });
+    }
+    
+    downloadFromFirebase(callback) {
+        console.log('⬇️ Descargando ventas desde Firebase...');
+        var self = this;
+        
+        window.FirebaseService.loadSales(200, function(error, firebaseSales) {
+            if (error) {
+                console.error('❌ Error al descargar ventas:', error);
+                callback(error, null);
+            } else if (firebaseSales && firebaseSales.length > 0) {
+                console.log('✅ Ventas descargadas desde Firebase:', firebaseSales.length);
+                
+                // Fusionar con ventas locales (evitar duplicados)
+                var ventasFusionadas = self.mergeSales(self.sales, firebaseSales);
+                self.sales = ventasFusionadas;
+                self.saveSales();
+                
+                callback(null, firebaseSales);
+            } else {
+                console.log('ℹ️ No hay ventas en Firebase, manteniendo datos locales');
+                callback(null, self.sales);
+            }
+        });
+    }
+    
+    mergeSales(localSales, firebaseSales) {
+        console.log('🔀 Fusionando ventas locales y de Firebase...');
+        var merged = [...localSales];
+        
+        firebaseSales.forEach(function(firebaseSale) {
+            // Buscar si ya existe localmente
+            var exists = merged.some(function(localSale) {
+                return localSale.id === firebaseSale.id || 
+                       localSale.firebaseId === firebaseSale.id;
+            });
+            
+            if (!exists) {
+                firebaseSale.firebaseId = firebaseSale.id;
+                merged.push(firebaseSale);
+            }
+        });
+        
+        console.log('✅ Ventas fusionadas:', merged.length, 'total');
+        return merged;
+    }
+    
+    resetSyncButton() {
+        var syncBtn = document.getElementById('syncVentasBtn');
+        if (syncBtn) {
+            syncBtn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Sincronizar Nube';
+            syncBtn.disabled = false;
+        }
     }
 }
 

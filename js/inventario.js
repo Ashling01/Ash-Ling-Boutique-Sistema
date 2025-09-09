@@ -19,12 +19,60 @@ class InventoryManager {
     }
 
     init() {
-        this.loadProducts();
+        console.log('🚀 Inicializando InventoryManager...');
+        
+        // Primero configurar eventos y UI básica
         this.setupEventListeners();
-        this.renderProducts();
-        this.updateStats();
         this.setupCalculations();
         this.setupFirebaseAutoSync();
+        
+        // Intentar cargar desde Firebase primero, luego localStorage como respaldo
+        this.loadFromFirebaseFirst();
+    }
+    
+    loadFromFirebaseFirst() {
+        var self = this;
+        console.log('🔄 Intentando cargar datos desde Firebase...');
+        
+        // Verificar si Firebase está disponible
+        if (window.FirebaseService && window.FirebaseService.isReady()) {
+            console.log('✅ Firebase disponible, cargando datos de la nube...');
+            
+            window.FirebaseService.loadInventoryProducts(function(error, firebaseProducts) {
+                if (error) {
+                    console.warn('⚠️ Error al cargar desde Firebase, usando localStorage:', error.message);
+                    self.loadFromLocalStorage();
+                } else if (firebaseProducts && firebaseProducts.length > 0) {
+                    console.log('✅ Datos cargados desde Firebase:', firebaseProducts.length, 'productos');
+                    self.products = firebaseProducts;
+                    // Sincronizar con localStorage
+                    self.saveProducts();
+                    self.renderProducts();
+                    self.updateStats();
+                } else {
+                    console.log('ℹ️ No hay datos en Firebase, cargando desde localStorage...');
+                    self.loadFromLocalStorage();
+                }
+            });
+        } else {
+            console.log('ℹ️ Firebase no disponible, cargando desde localStorage...');
+            self.loadFromLocalStorage();
+            
+            // Intentar conectar Firebase después
+            setTimeout(function() {
+                if (window.FirebaseService && window.FirebaseService.isReady()) {
+                    console.log('🔄 Firebase ahora disponible, sincronizando...');
+                    self.syncWithFirebase();
+                }
+            }, 3000);
+        }
+    }
+    
+    loadFromLocalStorage() {
+        console.log('📱 Cargando datos desde localStorage...');
+        this.loadProducts();
+        this.renderProducts();
+        this.updateStats();
     }
 
     setupEventListeners() {
@@ -200,8 +248,23 @@ class InventoryManager {
 
     saveProducts() {
         try {
+            // Guardar en localStorage primero
             localStorage.setItem('ash_ling_products', JSON.stringify(this.products));
-            console.log('Productos guardados: ' + this.products.length + ' productos en localStorage');
+            console.log('📱 Productos guardados localmente: ' + this.products.length + ' productos');
+            
+            // Sincronizar automáticamente con Firebase si está disponible
+            if (window.FirebaseService && window.FirebaseService.isReady()) {
+                var self = this;
+                console.log('🔄 Auto-sincronizando con Firebase...');
+                
+                window.FirebaseService.saveInventoryProducts(this.products, function(error, success) {
+                    if (error) {
+                        console.warn('⚠️ Error en auto-sincronización:', error.message);
+                    } else {
+                        console.log('✅ Auto-sincronización exitosa con Firebase');
+                    }
+                });
+            }
         } catch (error) {
             console.error('Error al guardar productos:', error);
             this.showNotification('Error al guardar productos', 'error');

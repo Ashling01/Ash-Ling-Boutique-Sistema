@@ -240,11 +240,44 @@ var FirebaseService = {
     }
     
     var inventoryRef = database.ref('ash-ling/inventory/products');
+    console.log('👂 Escuchando cambios en inventario Firebase...');
+    
     return inventoryRef.on('value', function(snapshot) {
       if (snapshot.exists()) {
         var data = snapshot.val();
-        callback(data.products || []);
+        var products = data.products || [];
+        console.log('🔄 Cambio detectado en Firebase:', products.length, 'productos');
+        
+        // Solo actualizar si hay cambios reales
+        var currentLocal = JSON.parse(localStorage.getItem('ash_ling_products') || '[]');
+        if (JSON.stringify(currentLocal) !== JSON.stringify(products)) {
+          console.log('📥 Aplicando cambios desde Firebase...');
+          localStorage.setItem('ash_ling_products', JSON.stringify(products));
+          callback(products);
+        }
       }
+    });
+  },
+  
+  setupRealTimeSync: function() {
+    var self = this;
+    console.log('⚡ Configurando sincronización en tiempo real...');
+    
+    this.onInventoryChange(function(products) {
+      console.log('🔄 Inventario actualizado desde otro dispositivo');
+      
+      // Notificar al sistema de inventario si está activo
+      if (window.inventoryManager) {
+        window.inventoryManager.products = products;
+        window.inventoryManager.renderProducts();
+        window.inventoryManager.updateStats();
+        window.inventoryManager.showNotification('📱 Inventario sincronizado desde otro dispositivo', 'info');
+      }
+      
+      // Disparar evento personalizado para otras partes del sistema
+      window.dispatchEvent(new CustomEvent('inventoryUpdated', { 
+        detail: { products: products, source: 'firebase' } 
+      }));
     });
   },
   
@@ -377,6 +410,9 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     if (FirebaseService.init()) {
       FirebaseService.showConnectionStatus();
+      
+      // Configurar sincronización en tiempo real
+      FirebaseService.setupRealTimeSync();
       
       // Notificar a otros scripts que Firebase está listo
       window.dispatchEvent(new CustomEvent('firebaseReady', { 
